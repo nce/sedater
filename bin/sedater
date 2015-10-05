@@ -1,0 +1,8 @@
+#!/bin/bash
+# ./sedater/bin/sedater
+# Author:   Ulli Goschler <ulligoschler@gmail.com>
+# Created:  Fri, 02.10.2015 - 14:22:26 
+# Modified: Fri, 02.10.2015 - 14:44:43
+
+BINPATH=`dirname $0`
+python "$BINPATH/../sedater/main.py" $@
