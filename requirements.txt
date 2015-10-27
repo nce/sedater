@@ -1,0 +1,3 @@
+matplotlib==1.4.3
+# testing
+testfixtures==4.3.3
