@@ -1,9 +1,9 @@
 # ./sedater/sedater/lib/options.py
 # Author:   Ulli Goschler <ulligoschler@gmail.com>
 # Created:  Fri, 02.10.2015 - 15:57:02 
-# Modified: Mon, 05.10.2015 - 15:49:38
+# Modified: Sat, 10.10.2015 - 11:56:05
 
-import sys
+import sys, os
 import getopt, logging
 
 class CLIParser(object):
@@ -11,17 +11,22 @@ class CLIParser(object):
 		pass
 
 	def parseForSedater(self, arguments):
-		_availableOpts = ['ptl:r:o:dvh', ['plot', 'csv-header',
+		_availableOpts = ['tl:r:o:dvh', ['csv-header',
 				'left-calibration=', 'right-calibration=', 'output-dir=',
 				'debug', 'verbose', 'help']]
 		opts = self._initParse(arguments, _availableOpts)
-
 		self.hasVerbose = False
 		self.hasDebug   = False
 		self.hasCsvHeader = False
+		self.outputDirPrefix = './'
+
+		if not opts:
+			self._sedaterUsage()
+			return False
+
 		for opt, arg in opts:
 			if opt in ('-h', '--help'):
-				self._usage()
+				self._sedaterUsage()
 				return False
 			elif opt in ('-v', '--verbose'):
 				self.hasVerbose = True
@@ -29,11 +34,22 @@ class CLIParser(object):
 				self.hasDebug = True
 			elif opt in ('-t', '--csv-header'):
 				self.hasCsvHeader = True
+			elif opt in ('-o', '--output-dir'):
+				dir = arg.lstrip().rstrip()
+				if os.path.isabs(dir):
+					self.outputDirPrefix = dir + '/'
+				else:
+					self.outputDirPrefix += dir + '/'
+
 
 		self._initLogging()
 
+	def _sedaterUsage(self):
+# implement help func
+		pass
+
 	def _initLogging(self):
-		logging.basicConfig(stream=sys.stdout, format="%(levelname)s - %(name)s")
+		logging.basicConfig(stream=sys.stdout, format="%(levelname)s: %(message)s")
 		self.log = logging.getLogger()
 		if self.hasDebug:
 			self.log.setLevel(logging.DEBUG)
