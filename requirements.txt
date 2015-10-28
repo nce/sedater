@@ -1,4 +1,4 @@
-numpy=1.10.1
+numpy==1.10.1
 matplotlib==1.4.3
 # testing
 testfixtures==4.3.3
