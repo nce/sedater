@@ -1,44 +1,67 @@
 # ./sedater/sedater/lib/filesystem.py
 # Author:	Ulli Goschler <ulligoschler@gmail.com>
 # Created:	Sat, 10.10.2015 - 12:00:05 
-# Modified:	Tue, 27.10.2015 - 19:02:42
+# Modified:	Wed, 28.10.2015 - 18:11:31
 
 import os
 import re
 from collections import namedtuple
 
 class Crawler(object):
-	inputSource = ''
-	inputSourceIsDir  = False
-	inputSourceIsFile = False
-	existingFiles = []
+	"""
+	The Crawler operates on a filesystem level and groups session files together.
+	In the crawling process all files under the given path (usually provided 
+	by command line) are examined and disassembled by certain criteria based 
+	on the filename.
 
-	def __init__(self, inputSource):
-		self.inputSourceIsDir = True if os.path.isdir(inputSource) else False
-		self.inputSourceIsFile = True if os.path.isfile(inputSource) else False
-		if not self.inputSourceIsFile and not self.inputSourceIsDir:
-			raise AttributeError('No file or directory supplied as input source')
-			return False
-		self.inputSource = inputSource
+	Session Data (required) is usually prefixed by (case sensitive):
+	- GAstd
+	- GA
+	- P
+	- Pat
+	Exercise Data (optional) by:
+	- E
+	Orientation data (required) by (case insensitive):
+	- left
+	- right
 
-	def crawl(self):
+	In the following pairing process, individual sensor data files are paired 
+	together based on the session (and if available: exercise) ID.
+	So each session should contain of a left and right sensor file.
+	"""
+
+	def __init__(self):
+		self.existingFiles = []
+		self.pairedFiles   = []
+
+	def crawl(self, source):
 		"""
 		Crawls all directories under supplied path and stores files 
 		matching a certain filename criteria for further processing
 		"""
-		if self.inputIsFile:
+		sourceIsDir  = True if os.path.isdir(source) else False
+		sourceIsFile = True if os.path.isfile(source) else False
+		if not sourceIsFile and not sourceIsDir:
+			raise AttributeError("'{}' is neither a file nor a directory,\
+					attempting to skip'".format(source))
+			return False
+
+		if sourceIsFile:
 			try:
-				validFile = self._parseFileName(self.inputSource)
+				validFile = self._parseFileName(source)
 			except PermissionError:
 				# TODO: log it
 				pass
-
 			if validFile:
 				self.existingFiles.append(validFile)
 		else:
-			self._crawlDir(self.inputSource)
+			# scan for files lying under current node and restart parsing
+			for paths, dirnames, files in os.walk(source):
+				for name in files:
+					self.crawl(os.path.join(paths,name))
 
-		if not self.files:
+		if not self.existingFiles:
+			raise ValueError("No processable files found in '{}'".format(source))
 			return False
 
 	def _crawlDir(self):
@@ -48,7 +71,7 @@ class Crawler(object):
 	def _parseFileName(self, f):
 		"""
 		Apply a RegEx on a filename to extract foot orientation and session ID
-		(aka patient) and an exercise id, if available.
+		(aka patient ID), if an exercise ID is available, match that too.
 		"""
 		if not os.access(f, os.R_OK):
 			raise PermissionError("No read access granted on '{}', skipping file")
@@ -80,6 +103,47 @@ class Crawler(object):
 					attr[2] = sessionMatch.group(i)
 					break
 		return Fileattributes._make(attr)
+
+	def pair(self):
+		"""
+		Pair two files together based on filename
+
+		Each Session (Patient) has usually two sensors (left & right foot). 
+		Based on the filename they are paired together.
+		"""
+		if not self.existingFiles:
+			raise ValueError("Can't attempt pairing if no datasets are available.\
+			Either the Inputsource didn't provide any matching files or the \
+			detection process failed")
+			return False
+
+		# delete all datasets without session and orientation data
+		# TODO: log deleted files
+		self.existingFiles = [x for x in self.existingFiles 
+				if x.session and x.orientation]
+
+		for single in self.existingFiles[:]:
+			# always find a matching 'right' sensor
+			if not single.orientation == 'left': continue
+			# match same session, exercise and file extension
+			match = [x for x in self.existingFiles 
+					if single.session == x.session
+					and single.exercise == x.exercise
+					and os.path.splitext(single.filename)[1]
+						== os.path.splitext(x.filename)[1]]
+			if len(match) == 2:
+				self.existingFiles.remove(match[0])
+				self.existingFiles.remove(match[1])
+				self.pairedFiles.append((match[0], match[1]))
+
+		# TODO: better way to handle files without partner?
+		if self.existingFiles:
+			for i in self.existingFiles:
+				self.pairedFiles.append((i, i))
+				raise ValueError("Found file without a matching partner '{}/{}',\
+						pairing with itself to continue.".format(i.path, i.filename))
+
+		return True
 
 Fileattributes = namedtuple('Fileattributes', 
 		['path', 'filename', 'session', 'exercise', 'orientation'])

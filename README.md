@@ -1,6 +1,6 @@
 # sedater - A Sensor-Validation Converter
 
-Sedater is a **Se**nsor-Vali**dat**ion Convert**er** for inertial based sensor 
+Sedater is a **Se**nsor-Vali**dat**ion Convert**er** for motion based sensor 
 systems like the Shimmer R2 or Vicon sensors. It converts the ValidationData to 
 a more machine processable format and groups individual session data together.
 
