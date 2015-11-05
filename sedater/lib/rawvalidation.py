@@ -1,11 +1,12 @@
 # ./sedater/lib/rawvalidation.py
 # Author:	Ulli Goschler <ulligoschler@gmail.com>
 # Created:	Wed, 28.10.2015 - 18:58:05 
-# Modified:	Fri, 30.10.2015 - 20:49:51
+# Modified:	Thu, 05.11.2015 - 19:15:13
 
 import os
 import csv
 import typing
+import struct
 
 import shared
 
@@ -21,6 +22,7 @@ class RawConverter(object):
 		self.filesToConvert   = filesToConvert
 		# 'sensors' has to be of type: UninitialziedSensor
 		self.availableSensors = sensors
+		# initialized sensors
 		self.initSensors      = {}
 		self.withHeaders      = csvHeaders
 
@@ -36,16 +38,24 @@ class RawConverter(object):
 				raise TypeError("Wrong type supplied, should be of type '{}', "
 						"is type: '{}'".format(type(shared.UninitializedSensor), type(i)))
 
-			self.initSensors[i.orientation] = Sensor(i.orientation, i.calibrationFile)
+			self.initSensors[i.orientation.name] = Sensor(
+					i.orientation, i.calibrationFile)
 
-
-		for raw in self.filesToConvert:
-			# skip all non '.dat' files
-			if '.dat' != os.path.splitext(raw[0].filename)[1]: continue
+		for rawPair in self.filesToConvert:
+			if not isinstance(rawPair, tuple):
+				raise TypeError("Wrong type supplied, should be of type '{}', "
+						"is type: '{}'".format('tuple',type(rawPair)))
+			# parse all files associated with current pair
+			for i in range(len(rawPair)):
+				# skip all non '.dat' files
+				if '.dat' != os.path.splitext(rawPair[i].filename)[1]: continue
+				self.initSensors[rawPair[i].orientation.name].parseAndNormalizeRawFile(
+						rawPair[i].path + "/" + rawPair[i].filename)
+				#print(rawPair[i], file=sys.stderr)
 
 class Sensor(object):
 	"""
-	The sensor is used to normalize and convert the Raw Data it recorded
+	The sensor is used to normalize and convert the raw data it recorded
 
 	Every sensor has a individual calibration file which is parsed and later
 	used to normalize the recorded raw data.
@@ -53,6 +63,7 @@ class Sensor(object):
 	def __init__(self, orientation, calibrationFile):
 		self.orientation = orientation
 		self._parseCalibrationFile(calibrationFile)
+		self.normalizedSensorSegments = []
 
 	def _parseCalibrationFile(self, file):
 		"""
@@ -84,4 +95,33 @@ class Sensor(object):
 						" to the requested format specified in the help "
 						"message. Please recheck the syntax of the file. "
 						"The detailed error was: {}".format(file, str(e)))
+
+	def parseAndNormalizeRawFile(self, file):
+		"""
+		Convert the binary in 12B-tuples (ushort) and normalize the tuple
+
+		Conversion is done by 12B pairs with native endian as 16bit
+		unsinged integers and stored as one sensor segment.
+		The Sensorsegments are then normalized (with the sensor
+		calibration)
+		"""
+
+		with open(file, 'rb') as rawFile:
+			structFmt = '=HHHHHH'   # native endian; 6x unsigned 16bit integer
+			structLen = struct.calcsize(structFmt) # calculate struct size
+
+			while True:
+				data = rawFile.read(structLen) # read structLen bytes from binary
+				if not data: break
+
+				dataset = struct.unpack(structFmt, data) # Unpack binary data
+				rawSegment = shared.Sensorsegment._make(list(dataset))
+				self.normalizedSensorSegments.append(self._normalizeRawSegment(rawSegment))
+
+	def _normalizeRawSegment(self, rawSegment):
+		# TODO: implement
+		pass
+
+
+
 
