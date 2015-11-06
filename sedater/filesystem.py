@@ -1,7 +1,7 @@
 # ./sedater/sedater/lib/filesystem.py
-# Author:	Ulli Goschler <ulligoschler@gmail.com>
-# Created:	Sat, 10.10.2015 - 12:00:05 
-# Modified:	Fri, 06.11.2015 - 17:15:19
+# Author:   Ulli Goschler <ulligoschler@gmail.com>
+# Created:  Sat, 10.10.2015 - 12:00:05 
+# Modified: Fri, 06.11.2015 - 17:54:12
 
 import os
 import re
@@ -10,140 +10,140 @@ from collections import namedtuple
 from sedater.lib.shared import Sourcefile
 
 class Crawler(object):
-	"""
-	The Crawler operates on a filesystem level and groups session files together.
-	In the crawling process all files under the given path (usually provided 
-	by command line) are examined and disassembled by certain criteria based 
-	on the filename.
+    """
+    The Crawler operates on a filesystem level and groups session files together.
+    In the crawling process all files under the given path (usually provided 
+    by command line) are examined and disassembled by certain criteria based 
+    on the filename.
 
-	Session Data (required) is usually prefixed by (case sensitive):
-	- GAstd
-	- GA
-	- P
-	- Pat
-	Exercise Data (optional) by:
-	- E
-	Orientation data (required) by (case insensitive):
-	- left
-	- right
+    Session Data (required) is usually prefixed by (case sensitive):
+    - GAstd
+    - GA
+    - P
+    - Pat
+    Exercise Data (optional) by:
+    - E
+    Orientation data (required) by (case insensitive):
+    - left
+    - right
 
-	In the following pairing process, individual sensor data files are paired 
-	together based on the session (and if available: exercise) ID.
-	So each session should contain of a left and right sensor file.
-	"""
+    In the following pairing process, individual sensor data files are paired 
+    together based on the session (and if available: exercise) ID.
+    So each session should contain of a left and right sensor file.
+    """
 
-	def __init__(self):
-		self.existingFiles = []
-		self.pairedFiles   = []
+    def __init__(self):
+        self.existingFiles = []
+        self.pairedFiles   = []
 
-	def crawl(self, source):
-		"""
-		Crawls all directories under supplied path and stores files 
-		matching a certain filename criteria for further processing
-		"""
-		sourceIsDir  = True if os.path.isdir(source) else False
-		sourceIsFile = True if os.path.isfile(source) else False
-		if not sourceIsFile and not sourceIsDir:
-			raise AttributeError("'{}' is neither a file nor a directory,\
-					attempting to skip'".format(source))
-			return False
+    def crawl(self, source):
+        """
+        Crawls all directories under supplied path and stores files 
+        matching a certain filename criteria for further processing
+        """
+        sourceIsDir  = True if os.path.isdir(source) else False
+        sourceIsFile = True if os.path.isfile(source) else False
+        if not sourceIsFile and not sourceIsDir:
+            raise AttributeError("'{}' is neither a file nor a directory,\
+                    attempting to skip'".format(source))
+            return False
 
-		if sourceIsFile:
-			try:
-				validFile = self._parseFileName(source)
-			except PermissionError:
-				# TODO: log it
-				pass
-			if validFile:
-				self.existingFiles.append(validFile)
-		else:
-			# scan for files lying under current node and restart parsing
-			for paths, dirnames, files in os.walk(source):
-				for name in files:
-					self.crawl(os.path.join(paths,name))
+        if sourceIsFile:
+            try:
+                validFile = self._parseFileName(source)
+            except PermissionError:
+                # TODO: log it
+                pass
+            if validFile:
+                self.existingFiles.append(validFile)
+        else:
+            # scan for files lying under current node and restart parsing
+            for paths, dirnames, files in os.walk(source):
+                for name in files:
+                    self.crawl(os.path.join(paths,name))
 
-		if not self.existingFiles:
-			raise ValueError("No processable files found in '{}'".format(source))
-			return False
+        if not self.existingFiles:
+            raise ValueError("No processable files found in '{}'".format(source))
+            return False
 
-	def _crawlDir(self):
-		# TODO: implement
-		pass
+    def _crawlDir(self):
+        # TODO: implement
+        pass
 
-	def _parseFileName(self, f):
-		"""
-		Apply a RegEx on a filename to extract foot orientation and session ID
-		(aka patient ID), if an exercise ID is available, match that too.
-		"""
-		if not os.access(f, os.R_OK):
-			raise PermissionError("No read access granted on '{}', skipping file")
-			return False
+    def _parseFileName(self, f):
+        """
+        Apply a RegEx on a filename to extract foot orientation and session ID
+        (aka patient ID), if an exercise ID is available, match that too.
+        """
+        if not os.access(f, os.R_OK):
+            raise PermissionError("No read access granted on '{}', skipping file")
+            return False
 
-		attr = [''] * 5                     # create list for file attributes
-		attr[0], attr[1] = os.path.split(f) # 0: fullpath 1:filename
+        attr = [''] * 5                     # create list for file attributes
+        attr[0], attr[1] = os.path.split(f) # 0: fullpath 1:filename
 
-		# list of regexes we run the filename against
-		## orientation is either left or right 
-		## exercise is prefixed by 'E' and sometimes followed by the orientation
-		## session is either prefixed by 'P', 'GA', 'GAstd' or 'Pat'
-		orientation = re.compile("(left|right)", re.IGNORECASE|re.M)
-		exercise    = re.compile("E([A-Za-z0-9]+)(?:left|right)?", re.M)
-		session     = re.compile("P([0-9]+)E?|GA([0-9]+)|GAstd([0-9a-z]+)(?:left|right)|Pat([0-9a-z]+)(?:left|right)", re.IGNORECASE|re.M)
+        # list of regexes we run the filename against
+        ## orientation is either left or right 
+        ## exercise is prefixed by 'E' and sometimes followed by the orientation
+        ## session is either prefixed by 'P', 'GA', 'GAstd' or 'Pat'
+        orientation = re.compile("(left|right)", re.IGNORECASE|re.M)
+        exercise    = re.compile("E([A-Za-z0-9]+)(?:left|right)?", re.M)
+        session     = re.compile("P([0-9]+)E?|GA([0-9]+)|GAstd([0-9a-z]+)(?:left|right)|Pat([0-9a-z]+)(?:left|right)", re.IGNORECASE|re.M)
 
-		orientationMatch = orientation.search(attr[1])
-		exerciseMatch    = exercise.search(attr[1])
-		sessionMatch     = session.search(attr[1])
+        orientationMatch = orientation.search(attr[1])
+        exerciseMatch    = exercise.search(attr[1])
+        sessionMatch     = session.search(attr[1])
 
-		# extract the matches
-		if orientationMatch: 
-			attr[4] = orientationMatch.group(1).lower()
-		if exerciseMatch: 
-			attr[3] = exerciseMatch.group(1)
-		if sessionMatch:
-			for i in range(1, len(sessionMatch.groups()) + 1):
-				if sessionMatch.group(i):
-					attr[2] = sessionMatch.group(i)
-					break
-		return Sourcefile._make(attr)
+        # extract the matches
+        if orientationMatch: 
+            attr[4] = orientationMatch.group(1).lower()
+        if exerciseMatch: 
+            attr[3] = exerciseMatch.group(1)
+        if sessionMatch:
+            for i in range(1, len(sessionMatch.groups()) + 1):
+                if sessionMatch.group(i):
+                    attr[2] = sessionMatch.group(i)
+                    break
+        return Sourcefile._make(attr)
 
-	def pair(self):
-		"""
-		Pair two files together based on filename
+    def pair(self):
+        """
+        Pair two files together based on filename
 
-		Each Session (Patient) has usually two sensors (left & right foot). 
-		Based on the filename they are paired together.
-		"""
-		if not self.existingFiles:
-			raise ValueError("Can't attempt pairing if no datasets are available.\
-			Either the Inputsource didn't provide any matching files or the \
-			detection process failed")
-			return False
+        Each Session (Patient) has usually two sensors (left & right foot). 
+        Based on the filename they are paired together.
+        """
+        if not self.existingFiles:
+            raise ValueError("Can't attempt pairing if no datasets are available.\
+            Either the Inputsource didn't provide any matching files or the \
+            detection process failed")
+            return False
 
-		# delete all datasets without session and orientation data
-		# TODO: log deleted files
-		self.existingFiles = [x for x in self.existingFiles 
-				if x.session and x.orientation]
+        # delete all datasets without session and orientation data
+        # TODO: log deleted files
+        self.existingFiles = [x for x in self.existingFiles 
+                if x.session and x.orientation]
 
-		for single in self.existingFiles[:]:
-			# always find a matching 'right' sensor
-			if not single.orientation == 'left': continue
-			# match same session, exercise and file extension
-			match = [x for x in self.existingFiles 
-					if single.session == x.session
-					and single.exercise == x.exercise
-					and os.path.splitext(single.filename)[1]
-						== os.path.splitext(x.filename)[1]]
-			if len(match) == 2:
-				self.existingFiles.remove(match[0])
-				self.existingFiles.remove(match[1])
-				self.pairedFiles.append((match[0], match[1]))
+        for single in self.existingFiles[:]:
+            # always find a matching 'right' sensor
+            if not single.orientation == 'left': continue
+            # match same session, exercise and file extension
+            match = [x for x in self.existingFiles 
+                    if single.session == x.session
+                    and single.exercise == x.exercise
+                    and os.path.splitext(single.filename)[1]
+                        == os.path.splitext(x.filename)[1]]
+            if len(match) == 2:
+                self.existingFiles.remove(match[0])
+                self.existingFiles.remove(match[1])
+                self.pairedFiles.append((match[0], match[1]))
 
-		# TODO: better way to handle files without partner?
-		if self.existingFiles:
-			for i in self.existingFiles:
-				self.pairedFiles.append((i, i))
-				raise ValueError("Found file without a matching partner '{}/{}',\
-						pairing with itself to continue.".format(i.path, i.filename))
+        # TODO: better way to handle files without partner?
+        if self.existingFiles:
+            for i in self.existingFiles:
+                self.pairedFiles.append((i, i))
+                raise ValueError("Found file without a matching partner '{}/{}',\
+                        pairing with itself to continue.".format(i.path, i.filename))
 
-		return True
+        return True
 
