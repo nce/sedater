@@ -1,14 +1,15 @@
 # ./sedater/sedater/test/test_filesystem.py
 # Author:	Ulli Goschler <ulligoschler@gmail.com>
 # Created:	Sun, 11.10.2015 - 20:21:18 
-# Modified:	Wed, 28.10.2015 - 17:55:59
+# Modified:	Fri, 06.11.2015 - 17:14:40
 
 import unittest
 from testfixtures import TempDirectory
 from stat import *
 import os
 
-from lib import filesystem
+from sedater.filesystem import Crawler
+from sedater.lib.shared import Sourcefile
 
 class TestFilesystemCrawler(unittest.TestCase):
 	filename = 'foobar.txt'
@@ -24,8 +25,8 @@ class TestFilesystemCrawler(unittest.TestCase):
 		TempDirectory.cleanup_all()
 	def dummyFile(self, filename, expected):
 		f = self.tmp.write(filename, b'EOF')
-		crawler = filesystem.Crawler()
-		ref = filesystem.Fileattributes._make(
+		crawler = Crawler()
+		ref = Sourcefile._make(
 				['', '', expected[0], expected[1], expected[2]])
 		res = crawler._parseFileName(f)
 		self.assertEquals(ref[2], res[2])
@@ -33,16 +34,16 @@ class TestFilesystemCrawler(unittest.TestCase):
 		self.assertEquals(ref[4], res[4])
 
 	def test_input_type(self):
-		crawler = filesystem.Crawler()
+		crawler = Crawler()
 		self.assertRaises(AttributeError, crawler.crawl, '404')
 
 	def test_input_file_permissions(self):
 		os.chmod(self.file, 0)
-		crawler = filesystem.Crawler()
+		crawler = Crawler()
 		self.assertRaises(PermissionError, crawler._parseFileName, self.file)
 
 	def test_empty_pairing(self):
-		crawler = filesystem.Crawler()
+		crawler = Crawler()
 		self.assertRaises(ValueError, crawler.pair)
 
 	# Pxx_Eyy_right|left (eGaitDatabase)
@@ -75,7 +76,7 @@ class TestFilesystemCrawler(unittest.TestCase):
 	def test_correct_pairing(self):
 		left  = self.tmp.write(self.dir + 'P01_E2_left.txt', b'')
 		right = self.tmp.write(self.dir + 'P01_E2_right.txt', b'')
-		crawler = filesystem.Crawler()
+		crawler = Crawler()
 		crawler.crawl(self.dir)
 		crawler.pair()
 		self.assertEquals(crawler.pairedFiles[0][0].filename, 'P01_E2_left.txt')
@@ -83,7 +84,7 @@ class TestFilesystemCrawler(unittest.TestCase):
 
 	def test_one_partner_missing_pairing(self):
 		left = self.tmp.write(self.dir + 'P01_E2_left.txt', b'')
-		crawler = filesystem.Crawler()
+		crawler = Crawler()
 		crawler.crawl(self.dir)
 		try:
 			crawler.pair()

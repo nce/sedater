@@ -1,11 +1,13 @@
 # ./sedater/sedater/lib/filesystem.py
 # Author:	Ulli Goschler <ulligoschler@gmail.com>
 # Created:	Sat, 10.10.2015 - 12:00:05 
-# Modified:	Wed, 28.10.2015 - 18:11:31
+# Modified:	Fri, 06.11.2015 - 17:15:19
 
 import os
 import re
 from collections import namedtuple
+
+from sedater.lib.shared import Sourcefile
 
 class Crawler(object):
 	"""
@@ -102,7 +104,7 @@ class Crawler(object):
 				if sessionMatch.group(i):
 					attr[2] = sessionMatch.group(i)
 					break
-		return Fileattributes._make(attr)
+		return Sourcefile._make(attr)
 
 	def pair(self):
 		"""
@@ -145,5 +147,3 @@ class Crawler(object):
 
 		return True
 
-Fileattributes = namedtuple('Fileattributes', 
-		['path', 'filename', 'session', 'exercise', 'orientation'])

@@ -1,12 +1,12 @@
 # ./sedater/test/test_options.py
 # Author:	Ulli Goschler <ulligoschler@gmail.com>
 # Created:	Mon, 05.10.2015 - 12:59:56 
-# Modified:	Sat, 10.10.2015 - 11:53:02
+# Modified:	Fri, 06.11.2015 - 17:01:52
 
 import unittest
 import logging as log
 
-from lib import options
+from sedater import options
 
 class TestCommandLineParameters(unittest.TestCase):
 	def setUp(self):
