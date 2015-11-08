@@ -1,14 +1,12 @@
 # ./sedater/lib/rawvalidation.py
 # Author:   Ulli Goschler <ulligoschler@gmail.com>
 # Created:  Wed, 28.10.2015 - 18:58:05 
-# Modified: Sun, 08.11.2015 - 01:11:17
+# Modified: Sun, 08.11.2015 - 22:21:36
 
 import os
 import csv
 import typing
 import struct
-
-import sys
 
 from sedater.lib import shared
 
@@ -137,9 +135,9 @@ class Sensor(object):
 
         The normalization process is done by the following mathematical algorithm:
 
-        *Acceleration:*
+        *Acceleration parameters:*
             (Rawvalue - ((plusG - minusG)/2)) / ((plusG - minusG)/2)
-        *Gyrometer:*
+        *Gyrometer parameters:*
             (Rawvalue - restingMean) / 2.731
         with:
             - Rawvalue    := the value given in the raw data file

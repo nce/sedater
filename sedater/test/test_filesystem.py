@@ -1,7 +1,7 @@
-# ./sedater/sedater/test/test_filesystem.py
+# ./sedater/test/test_filesystem.py
 # Author:   Ulli Goschler <ulligoschler@gmail.com>
 # Created:  Sun, 11.10.2015 - 20:21:18 
-# Modified: Fri, 06.11.2015 - 17:53:03
+# Modified: Sun, 08.11.2015 - 23:09:47
 
 import unittest
 from testfixtures import TempDirectory

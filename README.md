@@ -1,5 +1,6 @@
 # sedater - A Sensor-Validation Converter
-[![Build Status](https://travis-ci.org/nce/sedater.svg?branch=dev)](https://travis-ci.org/nce/sedater)
+[![Build Status](https://travis-ci.org/nce/sedater.svg?branch=master)](https://travis-ci.org/nce/sedater)
+[![Documentation Status](https://readthedocs.org/projects/sedater/badge/?version=latest)](http://sedater.readthedocs.org/en/latest/?badge=latest)
 
 **This Project is under development**
 
@@ -38,5 +39,14 @@ pip install -r requirements.txt
 ## Dependencies
 - Python3.5
 
+# Developer Documentation
+The code is annotated by [docstrings](https://en.wikipedia.org/wiki/Docstring), 
+which are automatically parsed by [Sphinx](http://sphinx-doc.org/) and online 
+available at [readthedocs.org](readthedocs.org):
+
+[Developer documentation](http://sedater.readthedocs.org/en/latest/)
+
 # Testing
-Run `nosetests` in the code directory
+Run `nosetests` in the code directory (`sedater`). All testcases are 
+automatcially evaluated by [Travis CI](travis-ci.org) on each code
+update.
