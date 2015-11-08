@@ -12,6 +12,6 @@ setup(
         author_email='ulligoschler@gmail.com',
         license = "MIT",
         url='https://github.com/nce/sedater',
-        packages=['sedater', 'sedater.lib', 'tests'],
+        packages=['sedater', 'sedater.lib', 'sedater.tests'],
         #long_description=read('README.md'), TODO:working
      )
