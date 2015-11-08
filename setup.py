@@ -13,5 +13,5 @@ setup(
         license = "MIT",
         url='https://github.com/nce/sedater',
         packages=['sedater', 'sedater.lib', 'tests'],
-        long_description=read('README.md'),
+        #long_description=read('README.md'), TODO:working
      )
