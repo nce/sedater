@@ -1,7 +1,7 @@
 # ./sedater/lib/shared.py
 # Author:   Ulli Goschler <ulligoschler@gmail.com>
 # Created:  Thu, 29.10.2015 - 19:05:20 
-# Modified: Fri, 06.11.2015 - 17:54:55
+# Modified: Sat, 07.11.2015 - 18:20:54
 
 from enum import Enum
 from typing import NamedTuple
@@ -36,7 +36,7 @@ SensorCalibration = NamedTuple('SensorCalibration', [
         ('gyroX_restMean', float),('gyroY_restMean', float),('gyroZ_restMean', float),
         ])
 
-Sensorsegment = NamedTuple('SensorSegment', [
+Sensorsegment = NamedTuple('Sensorsegment', [
           ('accelX', float)
         , ('accelY', float)
         , ('accelZ', float)
@@ -44,4 +44,6 @@ Sensorsegment = NamedTuple('SensorSegment', [
         , ('gyroY',  float)
         , ('gyroZ',  float)
         ])
-
+"""
+A sensor segment
+"""

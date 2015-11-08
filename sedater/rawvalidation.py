@@ -1,20 +1,22 @@
 # ./sedater/lib/rawvalidation.py
 # Author:   Ulli Goschler <ulligoschler@gmail.com>
 # Created:  Wed, 28.10.2015 - 18:58:05 
-# Modified: Fri, 06.11.2015 - 17:46:24
+# Modified: Sun, 08.11.2015 - 01:11:17
 
 import os
 import csv
 import typing
 import struct
 
-import shared
+import sys
+
+from sedater.lib import shared
 
 class RawConverter(object):
     """
     Convert binary-Sensorfiles to readable CSV
 
-    Conversation is currently limited to '.dat' files, to eliminate 
+    Note: Conversation is currently limited to '.dat' files, to eliminate 
     the chance of including accidently misplaced files in the directory
     """
 
@@ -51,7 +53,6 @@ class RawConverter(object):
                 if '.dat' != os.path.splitext(rawPair[i].filename)[1]: continue
                 self.initSensors[rawPair[i].orientation.name].parseAndNormalizeRawFile(
                         rawPair[i].path + "/" + rawPair[i].filename)
-                #print(rawPair[i], file=sys.stderr)
 
 class Sensor(object):
     """
@@ -59,8 +60,10 @@ class Sensor(object):
 
     Every sensor has a individual calibration file which is parsed and later
     used to normalize the recorded raw data.
+
     """
     def __init__(self, orientation, calibrationFile):
+        self.calibration = ''
         self.orientation = orientation
         self._parseCalibrationFile(calibrationFile)
         self.normalizedSensorSegments = []
@@ -73,7 +76,12 @@ class Sensor(object):
             AccelerometerX_plusG, AccelerometerY_plusG, AccelerometerZ_plusG
             AccelerometerX_minusG, AccelerometerY_minusG, AccelerometerZ_minusG
             GyroscopeX_restingMean, GyroscopeY_restingMean, GyroscopeZ_restingMean
-        Please make sure there are no header lines, whitespaces are stripped
+
+        Please make sure there are no header lines; whitespaces are stripped
+
+        :param file: Path to the sensor calibration file
+        :type file: str
+
         """
 
         with open(file, 'r', newline='') as calibration:
@@ -98,12 +106,15 @@ class Sensor(object):
 
     def parseAndNormalizeRawFile(self, file):
         """
-        Convert the binary in 12B-tuples (ushort) and normalize the tuple
+        Converts the binary in 12B-datasets (ushort) and normalizes the data 
 
-        Conversion is done by 12B pairs with native endian as 16bit
-        unsinged integers and stored as one sensor segment.
+        Conversion is done in sets of 12B, each 2B tuple as 16bit unsigned 
+        integers (nativ endian) and stored as one complete sensor segment.
         The Sensorsegments are then normalized (with the sensor
-        calibration)
+        calibration data)
+
+        :param file: path to the raw file
+        :type file: str
         """
 
         with open(file, 'rb') as rawFile:
@@ -117,11 +128,41 @@ class Sensor(object):
                 dataset = struct.unpack(structFmt, data) # Unpack binary data
                 rawSegment = shared.Sensorsegment._make(list(dataset))
                 self.normalizedSensorSegments.append(self._normalizeRawSegment(rawSegment))
+            # TODO: return as Segment maybe?
 
     def _normalizeRawSegment(self, rawSegment):
-        # TODO: implement
-        pass
+        """
+        Normalizes the sensor data by applying the individual calibration file 
+        for each sensor.
 
+        The normalization process is done by the following mathematical algorithm:
 
+        *Acceleration:*
+            (Rawvalue - ((plusG - minusG)/2)) / ((plusG - minusG)/2)
+        *Gyrometer:*
+            (Rawvalue - restingMean) / 2.731
+        with:
+            - Rawvalue    := the value given in the raw data file
+            - plusG       := the direction specific plus value of the calibration file
+            - minusG      := the direction specific minus value of the calibration file
+            - restingMean := the direction specific reastingMean value of the calibration file
+
+        :param rawSegment: the converted raw sensor dataset, which should be normalized
+        :type rawSegment: :class:`sedater.lib.shared.Sensorsegment`
+        :return: the normalized Segment
+        :rtype: :class:`sedater.lib.shared.Sensorsegment`
+
+        """
+        normSegment = [None] * 6
+
+        try:
+            for i in range(3):
+                normSegment[i] = (rawSegment[i] - ((self.calibration[i] + self.calibration[3 + i])/2)) \
+                        / ((self.calibration[i] - self.calibration[3 + i])/2)
+                normSegment[i + 3] = (rawSegment[i + 3] - self.calibration[i + 6])/2.731
+        except Exception as e:
+            raise e
+
+        return shared.Sensorsegment._make(normSegment)
 
 

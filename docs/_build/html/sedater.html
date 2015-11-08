@@ -1,0 +1,351 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>sedater package &mdash; sedater  documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="sedater  documentation" href="index.html" />
+    <link rel="prev" title="Welcome to sedater’s documentation!" href="index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body role="document">  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="sedater-package">
+<h1>sedater package<a class="headerlink" href="#sedater-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-sedater.filesystem">
+<span id="sedater-filesystem-module"></span><h2>sedater.filesystem module<a class="headerlink" href="#module-sedater.filesystem" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="sedater.filesystem.Crawler">
+<em class="property">class </em><code class="descclassname">sedater.filesystem.</code><code class="descname">Crawler</code><a class="reference internal" href="_modules/sedater/filesystem.html#Crawler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sedater.filesystem.Crawler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>The Crawler operates on a filesystem level and groups session files together.
+In the crawling process all files under the given path (usually provided 
+by command line) are examined and disassembled by certain criteria based 
+on the filename.</p>
+<dl class="docutils">
+<dt>Session Data (required) is usually prefixed by (case sensitive):</dt>
+<dd><ul class="first last simple">
+<li>GAstd</li>
+<li>GA</li>
+<li>P</li>
+<li>Pat</li>
+</ul>
+</dd>
+<dt>Exercise Data (optional) by:</dt>
+<dd><ul class="first last simple">
+<li>E</li>
+</ul>
+</dd>
+<dt>Orientation data (required) by (case insensitive):</dt>
+<dd><ul class="first last simple">
+<li>left</li>
+<li>right</li>
+</ul>
+</dd>
+</dl>
+<p>In the following pairing process, individual sensor data files are paired 
+together based on the session (and if available: exercise) ID.
+So each session should contain a left and right sensor file.</p>
+<dl class="method">
+<dt id="sedater.filesystem.Crawler.crawl">
+<code class="descname">crawl</code><span class="sig-paren">(</span><em>source</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sedater/filesystem.html#Crawler.crawl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sedater.filesystem.Crawler.crawl" title="Permalink to this definition">¶</a></dt>
+<dd><p>Crawls all directories under supplied path and stores files 
+matching a certain filename criteria for further processing</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="sedater.filesystem.Crawler.pair">
+<code class="descname">pair</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/sedater/filesystem.html#Crawler.pair"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sedater.filesystem.Crawler.pair" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pair two files together based on filename</p>
+<p>Each Session (Patient) has usually two sensors (left &amp; right foot). 
+Based on the filename they are paired together.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-sedater.main">
+<span id="sedater-main-module"></span><h2>sedater.main module<a class="headerlink" href="#module-sedater.main" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-sedater.options">
+<span id="sedater-options-module"></span><h2>sedater.options module<a class="headerlink" href="#module-sedater.options" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="sedater.options.CLIParser">
+<em class="property">class </em><code class="descclassname">sedater.options.</code><code class="descname">CLIParser</code><a class="reference internal" href="_modules/sedater/options.html#CLIParser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sedater.options.CLIParser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="sedater.options.CLIParser.parseForSedater">
+<code class="descname">parseForSedater</code><span class="sig-paren">(</span><em>arguments</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sedater/options.html#CLIParser.parseForSedater"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sedater.options.CLIParser.parseForSedater" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-sedater.rawvalidation">
+<span id="sedater-rawvalidation-module"></span><h2>sedater.rawvalidation module<a class="headerlink" href="#module-sedater.rawvalidation" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="sedater.rawvalidation.RawConverter">
+<em class="property">class </em><code class="descclassname">sedater.rawvalidation.</code><code class="descname">RawConverter</code><span class="sig-paren">(</span><em>filesToConvert</em>, <em>sensors</em>, <em>csvHeaders=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sedater/rawvalidation.html#RawConverter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sedater.rawvalidation.RawConverter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Convert binary-Sensorfiles to readable CSV</p>
+<p>Note: Conversation is currently limited to &#8216;.dat&#8217; files, to eliminate 
+the chance of including accidently misplaced files in the directory</p>
+<dl class="method">
+<dt id="sedater.rawvalidation.RawConverter.processDatFiles">
+<code class="descname">processDatFiles</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/sedater/rawvalidation.html#RawConverter.processDatFiles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sedater.rawvalidation.RawConverter.processDatFiles" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="sedater.rawvalidation.Sensor">
+<em class="property">class </em><code class="descclassname">sedater.rawvalidation.</code><code class="descname">Sensor</code><span class="sig-paren">(</span><em>orientation</em>, <em>calibrationFile</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sedater/rawvalidation.html#Sensor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sedater.rawvalidation.Sensor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>The sensor is used to normalize and convert the raw data it recorded</p>
+<p>Every sensor has a individual calibration file which is parsed and later
+used to normalize the recorded raw data.</p>
+<dl class="method">
+<dt id="sedater.rawvalidation.Sensor._normalizeRawSegment">
+<code class="descname">_normalizeRawSegment</code><span class="sig-paren">(</span><em>rawSegment</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sedater/rawvalidation.html#Sensor._normalizeRawSegment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sedater.rawvalidation.Sensor._normalizeRawSegment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalizes the sensor data by applying the individual calibration file 
+for each sensor.</p>
+<p>The normalization process is done by the following mathematical algorithm:</p>
+<dl class="docutils">
+<dt><em>Acceleration:</em></dt>
+<dd>(Rawvalue - ((plusG - minusG)/2)) / ((plusG - minusG)/2)</dd>
+<dt><em>Gyrometer:</em></dt>
+<dd>(Rawvalue - restingMean) / 2.731</dd>
+<dt>with:</dt>
+<dd><ul class="first last simple">
+<li>Rawvalue    := the value given in the raw data file</li>
+<li>plusG       := the direction specific plus value of the calibration file</li>
+<li>minusG      := the direction specific minus value of the calibration file</li>
+<li>restingMean := the direction specific reastingMean value of the calibration file</li>
+</ul>
+</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>rawSegment</strong> (<a class="reference internal" href="#sedater.lib.shared.Sensorsegment" title="sedater.lib.shared.Sensorsegment"><code class="xref py py-class docutils literal"><span class="pre">sedater.lib.shared.Sensorsegment</span></code></a>) &#8211; the converted raw sensor dataset, which should be normalized</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the normalized Segment</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#sedater.lib.shared.Sensorsegment" title="sedater.lib.shared.Sensorsegment"><code class="xref py py-class docutils literal"><span class="pre">sedater.lib.shared.Sensorsegment</span></code></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="sedater.rawvalidation.Sensor._parseCalibrationFile">
+<code class="descname">_parseCalibrationFile</code><span class="sig-paren">(</span><em>file</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sedater/rawvalidation.html#Sensor._parseCalibrationFile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sedater.rawvalidation.Sensor._parseCalibrationFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses a given calibration file</p>
+<dl class="docutils">
+<dt>The format of the CSV should precisly match the given structure:</dt>
+<dd>AccelerometerX_plusG, AccelerometerY_plusG, AccelerometerZ_plusG
+AccelerometerX_minusG, AccelerometerY_minusG, AccelerometerZ_minusG
+GyroscopeX_restingMean, GyroscopeY_restingMean, GyroscopeZ_restingMean</dd>
+</dl>
+<p>Please make sure there are no header lines; whitespaces are stripped</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>file</strong> (<em>str</em>) &#8211; Path to the sensor calibration file</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="sedater.rawvalidation.Sensor.parseAndNormalizeRawFile">
+<code class="descname">parseAndNormalizeRawFile</code><span class="sig-paren">(</span><em>file</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sedater/rawvalidation.html#Sensor.parseAndNormalizeRawFile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sedater.rawvalidation.Sensor.parseAndNormalizeRawFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts the binary in 12B-datasets (ushort) and normalizes the data</p>
+<p>Conversion is done in sets of 12B, each 2B tuple as 16bit unsigned 
+integers (nativ endian) and stored as one complete sensor segment.
+The Sensorsegments are then normalized (with the sensor
+calibration data)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>file</strong> (<em>str</em>) &#8211; path to the raw file</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-sedater.lib.shared">
+<span id="sedater-lib-shared-module"></span><h2>sedater.lib.shared module<a class="headerlink" href="#module-sedater.lib.shared" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="sedater.lib.shared.Orientation">
+<em class="property">class </em><code class="descclassname">sedater.lib.shared.</code><code class="descname">Orientation</code><a class="reference internal" href="_modules/sedater/lib/shared.html#Orientation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sedater.lib.shared.Orientation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">enum.Enum</span></code></p>
+<p>Define the orientation a sensor can have</p>
+<p>While this is currently only attributable to a left or right (foot), this 
+might be expandable in the future.
+You might consider the &#8216;orientation&#8217; as kind of a sensor id.</p>
+<dl class="attribute">
+<dt id="sedater.lib.shared.Orientation.left">
+<code class="descname">left</code><em class="property"> = &lt;Orientation.left: 1&gt;</em><a class="headerlink" href="#sedater.lib.shared.Orientation.left" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="sedater.lib.shared.Orientation.right">
+<code class="descname">right</code><em class="property"> = &lt;Orientation.right: 2&gt;</em><a class="headerlink" href="#sedater.lib.shared.Orientation.right" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="sedater.lib.shared.Sensorsegment">
+<em class="property">class </em><code class="descclassname">sedater.lib.shared.</code><code class="descname">Sensorsegment</code><span class="sig-paren">(</span><em>accelX</em>, <em>accelY</em>, <em>accelZ</em>, <em>gyroX</em>, <em>gyroY</em>, <em>gyroZ</em><span class="sig-paren">)</span><a class="headerlink" href="#sedater.lib.shared.Sensorsegment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">tuple</span></code></p>
+<p>A sensor segment</p>
+<dl class="attribute">
+<dt id="sedater.lib.shared.Sensorsegment.accelX">
+<code class="descname">accelX</code><a class="headerlink" href="#sedater.lib.shared.Sensorsegment.accelX" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 0</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="sedater.lib.shared.Sensorsegment.accelY">
+<code class="descname">accelY</code><a class="headerlink" href="#sedater.lib.shared.Sensorsegment.accelY" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 1</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="sedater.lib.shared.Sensorsegment.accelZ">
+<code class="descname">accelZ</code><a class="headerlink" href="#sedater.lib.shared.Sensorsegment.accelZ" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 2</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="sedater.lib.shared.Sensorsegment.gyroX">
+<code class="descname">gyroX</code><a class="headerlink" href="#sedater.lib.shared.Sensorsegment.gyroX" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 3</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="sedater.lib.shared.Sensorsegment.gyroY">
+<code class="descname">gyroY</code><a class="headerlink" href="#sedater.lib.shared.Sensorsegment.gyroY" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 4</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="sedater.lib.shared.Sensorsegment.gyroZ">
+<code class="descname">gyroZ</code><a class="headerlink" href="#sedater.lib.shared.Sensorsegment.gyroZ" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 5</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-sedater">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-sedater" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">sedater package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-sedater.filesystem">sedater.filesystem module</a></li>
+<li><a class="reference internal" href="#module-sedater.main">sedater.main module</a></li>
+<li><a class="reference internal" href="#module-sedater.options">sedater.options module</a></li>
+<li><a class="reference internal" href="#module-sedater.rawvalidation">sedater.rawvalidation module</a></li>
+<li><a class="reference internal" href="#module-sedater.lib.shared">sedater.lib.shared module</a></li>
+<li><a class="reference internal" href="#module-sedater">Module contents</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">Welcome to sedater&#8217;s documentation!</a></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/sedater.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, Ulli Goschler.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
+      
+      |
+      <a href="_sources/sedater.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

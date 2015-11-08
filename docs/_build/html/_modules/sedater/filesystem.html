@@ -1,0 +1,236 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>sedater.filesystem &mdash; sedater  documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="sedater  documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body role="document">  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for sedater.filesystem</h1><div class="highlight"><pre>
+<span class="c"># ./sedater/sedater/lib/filesystem.py</span>
+<span class="c"># Author:   Ulli Goschler &lt;ulligoschler@gmail.com&gt;</span>
+<span class="c"># Created:  Sat, 10.10.2015 - 12:00:05 </span>
+<span class="c"># Modified: Sat, 07.11.2015 - 18:31:53</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">namedtuple</span>
+
+<span class="kn">from</span> <span class="nn">sedater.lib.shared</span> <span class="kn">import</span> <span class="n">Sourcefile</span>
+
+<div class="viewcode-block" id="Crawler"><a class="viewcode-back" href="../../sedater.html#sedater.filesystem.Crawler">[docs]</a><span class="k">class</span> <span class="nc">Crawler</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The Crawler operates on a filesystem level and groups session files together.</span>
+<span class="sd">    In the crawling process all files under the given path (usually provided </span>
+<span class="sd">    by command line) are examined and disassembled by certain criteria based </span>
+<span class="sd">    on the filename.</span>
+
+<span class="sd">    Session Data (required) is usually prefixed by (case sensitive):</span>
+<span class="sd">        * GAstd</span>
+<span class="sd">        * GA</span>
+<span class="sd">        * P</span>
+<span class="sd">        * Pat</span>
+
+<span class="sd">    Exercise Data (optional) by:</span>
+<span class="sd">        - E</span>
+
+<span class="sd">    Orientation data (required) by (case insensitive):</span>
+<span class="sd">        - left</span>
+<span class="sd">        - right</span>
+
+<span class="sd">    In the following pairing process, individual sensor data files are paired </span>
+<span class="sd">    together based on the session (and if available: exercise) ID.</span>
+<span class="sd">    So each session should contain a left and right sensor file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">existingFiles</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pairedFiles</span>   <span class="o">=</span> <span class="p">[]</span>
+
+<div class="viewcode-block" id="Crawler.crawl"><a class="viewcode-back" href="../../sedater.html#sedater.filesystem.Crawler.crawl">[docs]</a>    <span class="k">def</span> <span class="nf">crawl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Crawls all directories under supplied path and stores files </span>
+<span class="sd">        matching a certain filename criteria for further processing</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sourceIsDir</span>  <span class="o">=</span> <span class="bp">True</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">source</span><span class="p">)</span> <span class="k">else</span> <span class="bp">False</span>
+        <span class="n">sourceIsFile</span> <span class="o">=</span> <span class="bp">True</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">source</span><span class="p">)</span> <span class="k">else</span> <span class="bp">False</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">sourceIsFile</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">sourceIsDir</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s">&quot;&#39;{}&#39; is neither a file nor a directory,</span><span class="se">\</span>
+<span class="s">                    attempting to skip&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">source</span><span class="p">))</span>
+            <span class="k">return</span> <span class="bp">False</span>
+
+        <span class="k">if</span> <span class="n">sourceIsFile</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">validFile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parseFileName</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">PermissionError</span><span class="p">:</span>
+                <span class="c"># TODO: log it</span>
+                <span class="k">pass</span>
+            <span class="k">if</span> <span class="n">validFile</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">existingFiles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">validFile</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c"># scan for files lying under current node and restart parsing</span>
+            <span class="k">for</span> <span class="n">paths</span><span class="p">,</span> <span class="n">dirnames</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">source</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">crawl</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">paths</span><span class="p">,</span><span class="n">name</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">existingFiles</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;No processable files found in &#39;{}&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">source</span><span class="p">))</span>
+            <span class="k">return</span> <span class="bp">False</span>
+</div>
+    <span class="k">def</span> <span class="nf">_crawlDir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c"># TODO: implement</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">_parseFileName</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Apply a RegEx on a filename to extract foot orientation and session ID</span>
+<span class="sd">        (aka patient ID), if an exercise ID is available, match that too.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">access</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">R_OK</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">PermissionError</span><span class="p">(</span><span class="s">&quot;No read access granted on &#39;{}&#39;, skipping file&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">False</span>
+
+        <span class="n">attr</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">5</span>                     <span class="c"># create list for file attributes</span>
+        <span class="n">attr</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">attr</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="c"># 0: fullpath 1:filename</span>
+
+        <span class="c"># list of regexes we run the filename against</span>
+        <span class="c">## orientation is either left or right </span>
+        <span class="c">## exercise is prefixed by &#39;E&#39; and sometimes followed by the orientation</span>
+        <span class="c">## session is either prefixed by &#39;P&#39;, &#39;GA&#39;, &#39;GAstd&#39; or &#39;Pat&#39;</span>
+        <span class="n">orientation</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&quot;(left|right)&quot;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="o">|</span><span class="n">re</span><span class="o">.</span><span class="n">M</span><span class="p">)</span>
+        <span class="n">exercise</span>    <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&quot;E([A-Za-z0-9]+)(?:left|right)?&quot;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">M</span><span class="p">)</span>
+        <span class="n">session</span>     <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&quot;P([0-9]+)E?|GA([0-9]+)|GAstd([0-9a-z]+)(?:left|right)|Pat([0-9a-z]+)(?:left|right)&quot;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="o">|</span><span class="n">re</span><span class="o">.</span><span class="n">M</span><span class="p">)</span>
+
+        <span class="n">orientationMatch</span> <span class="o">=</span> <span class="n">orientation</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">attr</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">exerciseMatch</span>    <span class="o">=</span> <span class="n">exercise</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">attr</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">sessionMatch</span>     <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">attr</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="c"># extract the matches</span>
+        <span class="k">if</span> <span class="n">orientationMatch</span><span class="p">:</span> 
+            <span class="n">attr</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="n">orientationMatch</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">exerciseMatch</span><span class="p">:</span> 
+            <span class="n">attr</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">exerciseMatch</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">sessionMatch</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">sessionMatch</span><span class="o">.</span><span class="n">groups</span><span class="p">())</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">sessionMatch</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
+                    <span class="n">attr</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">sessionMatch</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                    <span class="k">break</span>
+        <span class="k">return</span> <span class="n">Sourcefile</span><span class="o">.</span><span class="n">_make</span><span class="p">(</span><span class="n">attr</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Crawler.pair"><a class="viewcode-back" href="../../sedater.html#sedater.filesystem.Crawler.pair">[docs]</a>    <span class="k">def</span> <span class="nf">pair</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Pair two files together based on filename</span>
+
+<span class="sd">        Each Session (Patient) has usually two sensors (left &amp; right foot). </span>
+<span class="sd">        Based on the filename they are paired together.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">existingFiles</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Can&#39;t attempt pairing if no datasets are available.</span><span class="se">\</span>
+<span class="s">            Either the Inputsource didn&#39;t provide any matching files or the </span><span class="se">\</span>
+<span class="s">            detection process failed&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">False</span>
+
+        <span class="c"># delete all datasets without session and orientation data</span>
+        <span class="c"># TODO: log deleted files</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">existingFiles</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">existingFiles</span> 
+                <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">session</span> <span class="ow">and</span> <span class="n">x</span><span class="o">.</span><span class="n">orientation</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">single</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">existingFiles</span><span class="p">[:]:</span>
+            <span class="c"># always find a matching &#39;right&#39; sensor</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">single</span><span class="o">.</span><span class="n">orientation</span> <span class="o">==</span> <span class="s">&#39;left&#39;</span><span class="p">:</span> <span class="k">continue</span>
+            <span class="c"># match same session, exercise and file extension</span>
+            <span class="n">match</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">existingFiles</span> 
+                    <span class="k">if</span> <span class="n">single</span><span class="o">.</span><span class="n">session</span> <span class="o">==</span> <span class="n">x</span><span class="o">.</span><span class="n">session</span>
+                    <span class="ow">and</span> <span class="n">single</span><span class="o">.</span><span class="n">exercise</span> <span class="o">==</span> <span class="n">x</span><span class="o">.</span><span class="n">exercise</span>
+                    <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">single</span><span class="o">.</span><span class="n">filename</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+                        <span class="o">==</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">filename</span><span class="p">)[</span><span class="mi">1</span><span class="p">]]</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">match</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">existingFiles</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">match</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">existingFiles</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">match</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">pairedFiles</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">match</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">match</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+
+        <span class="c"># TODO: better way to handle files without partner?</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">existingFiles</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">existingFiles</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">pairedFiles</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Found file without a matching partner &#39;{}/{}&#39;,</span><span class="se">\</span>
+<span class="s">                        pairing with itself to continue.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">i</span><span class="o">.</span><span class="n">filename</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="bp">True</span>
+</pre></div></div></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, Ulli Goschler.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

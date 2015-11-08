@@ -1,6 +1,8 @@
 # sedater - A Sensor-Validation Converter
 [![Build Status](https://travis-ci.org/nce/sedater.svg?branch=dev)](https://travis-ci.org/nce/sedater)
 
+**This Project is under development**
+
 Sedater is a **Se**nsor-Vali**dat**ion Convert**er** for motion based sensor 
 systems like the Shimmer R2 or Vicon sensors. It converts the ValidationData to 
 a more machine processable format and groups individual session data together.

@@ -1,0 +1,247 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>sedater.rawvalidation &mdash; sedater  documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="sedater  documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body role="document">  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for sedater.rawvalidation</h1><div class="highlight"><pre>
+<span class="c"># ./sedater/lib/rawvalidation.py</span>
+<span class="c"># Author:   Ulli Goschler &lt;ulligoschler@gmail.com&gt;</span>
+<span class="c"># Created:  Wed, 28.10.2015 - 18:58:05 </span>
+<span class="c"># Modified: Sat, 07.11.2015 - 18:36:19</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">csv</span>
+<span class="kn">import</span> <span class="nn">typing</span>
+<span class="kn">import</span> <span class="nn">struct</span>
+
+<span class="kn">from</span> <span class="nn">sedater.lib</span> <span class="kn">import</span> <span class="n">shared</span>
+
+<div class="viewcode-block" id="RawConverter"><a class="viewcode-back" href="../../sedater.html#sedater.rawvalidation.RawConverter">[docs]</a><span class="k">class</span> <span class="nc">RawConverter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert binary-Sensorfiles to readable CSV</span>
+
+<span class="sd">    Note: Conversation is currently limited to &#39;.dat&#39; files, to eliminate </span>
+<span class="sd">    the chance of including accidently misplaced files in the directory</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filesToConvert</span><span class="p">,</span> <span class="n">sensors</span><span class="p">,</span> <span class="n">csvHeaders</span> <span class="o">=</span> <span class="bp">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filesToConvert</span>   <span class="o">=</span> <span class="n">filesToConvert</span>
+        <span class="c"># &#39;sensors&#39; has to be of type: UninitialziedSensor</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">availableSensors</span> <span class="o">=</span> <span class="n">sensors</span>
+        <span class="c"># initialized sensors</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initSensors</span>      <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">withHeaders</span>      <span class="o">=</span> <span class="n">csvHeaders</span>
+
+        <span class="c"># if not self.leftSensorCalibrationFile or \</span>
+        <span class="c">#       not self.rightSensorCalibrationFile:</span>
+        <span class="c">#   raise AttributeError(&quot;No or just one sensor calibration file \</span>
+        <span class="c">#           have been specified. This might introduce a remarkable \</span>
+        <span class="c">#           error in the Validationdata. Proceed with caution.&quot;)</span>
+
+<div class="viewcode-block" id="RawConverter.processDatFiles"><a class="viewcode-back" href="../../sedater.html#sedater.rawvalidation.RawConverter.processDatFiles">[docs]</a>    <span class="k">def</span> <span class="nf">processDatFiles</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">availableSensors</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&quot;Wrong type supplied, should be of type &#39;{}&#39;, &quot;</span>
+                        <span class="s">&quot;is type: &#39;{}&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">shared</span><span class="o">.</span><span class="n">UninitializedSensor</span><span class="p">),</span> <span class="nb">type</span><span class="p">(</span><span class="n">i</span><span class="p">)))</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">initSensors</span><span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">orientation</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">Sensor</span><span class="p">(</span>
+                    <span class="n">i</span><span class="o">.</span><span class="n">orientation</span><span class="p">,</span> <span class="n">i</span><span class="o">.</span><span class="n">calibrationFile</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">rawPair</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">filesToConvert</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rawPair</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&quot;Wrong type supplied, should be of type &#39;{}&#39;, &quot;</span>
+                        <span class="s">&quot;is type: &#39;{}&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s">&#39;tuple&#39;</span><span class="p">,</span><span class="nb">type</span><span class="p">(</span><span class="n">rawPair</span><span class="p">)))</span>
+            <span class="c"># parse all files associated with current pair</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">rawPair</span><span class="p">)):</span>
+                <span class="c"># skip all non &#39;.dat&#39; files</span>
+                <span class="k">if</span> <span class="s">&#39;.dat&#39;</span> <span class="o">!=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">rawPair</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">filename</span><span class="p">)[</span><span class="mi">1</span><span class="p">]:</span> <span class="k">continue</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">initSensors</span><span class="p">[</span><span class="n">rawPair</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">orientation</span><span class="o">.</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">parseAndNormalizeRawFile</span><span class="p">(</span>
+                        <span class="n">rawPair</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">path</span> <span class="o">+</span> <span class="s">&quot;/&quot;</span> <span class="o">+</span> <span class="n">rawPair</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">filename</span><span class="p">)</span>
+                <span class="c">#print(rawPair[i], file=sys.stderr)</span>
+</div></div>
+<div class="viewcode-block" id="Sensor"><a class="viewcode-back" href="../../sedater.html#sedater.rawvalidation.Sensor">[docs]</a><span class="k">class</span> <span class="nc">Sensor</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The sensor is used to normalize and convert the raw data it recorded</span>
+
+<span class="sd">    Every sensor has a individual calibration file which is parsed and later</span>
+<span class="sd">    used to normalize the recorded raw data.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">orientation</span><span class="p">,</span> <span class="n">calibrationFile</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">calibration</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">orientation</span> <span class="o">=</span> <span class="n">orientation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parseCalibrationFile</span><span class="p">(</span><span class="n">calibrationFile</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">normalizedSensorSegments</span> <span class="o">=</span> <span class="p">[]</span>
+
+<div class="viewcode-block" id="Sensor._parseCalibrationFile"><a class="viewcode-back" href="../../sedater.html#sedater.rawvalidation.Sensor._parseCalibrationFile">[docs]</a>    <span class="k">def</span> <span class="nf">_parseCalibrationFile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">file</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parses a given calibration file</span>
+
+<span class="sd">        The format of the CSV should precisly match the given structure:</span>
+<span class="sd">            AccelerometerX_plusG, AccelerometerY_plusG, AccelerometerZ_plusG</span>
+<span class="sd">            AccelerometerX_minusG, AccelerometerY_minusG, AccelerometerZ_minusG</span>
+<span class="sd">            GyroscopeX_restingMean, GyroscopeY_restingMean, GyroscopeZ_restingMean</span>
+
+<span class="sd">        Please make sure there are no header lines; whitespaces are stripped</span>
+
+<span class="sd">        :param file: Path to the sensor calibration file</span>
+<span class="sd">        :type file: str</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="nb">file</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">calibration</span><span class="p">:</span>
+            <span class="c"># open csv calibration file</span>
+            <span class="n">csvList</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">csv</span><span class="o">.</span><span class="n">reader</span><span class="p">(</span><span class="n">calibration</span><span class="p">))</span>
+            <span class="c"># parse all csv entries into a flat list of floats</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">tmp</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="p">[</span><span class="n">val</span> <span class="k">for</span> <span class="n">sublist</span> <span class="ow">in</span> <span class="n">csvList</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">sublist</span><span class="p">]))</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;The given calibration file &#39;{}&#39; contains a &quot;</span>
+                        <span class="s">&quot;value which is not convertable to a number, make sure &quot;</span>
+                        <span class="s">&quot;the file only consists of comma seperated numbers (int &quot;</span>
+                        <span class="s">&quot;or float). Refer to the help message for further &quot;</span>
+                        <span class="s">&quot;assistance&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">file</span><span class="p">))</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">calibration</span> <span class="o">=</span> <span class="n">shared</span><span class="o">.</span><span class="n">SensorCalibration</span><span class="o">.</span><span class="n">_make</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">TypeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&quot;The given calibration file &#39;{}&#39; doesn&#39;t adhere&quot;</span>
+                        <span class="s">&quot; to the requested format specified in the help &quot;</span>
+                        <span class="s">&quot;message. Please recheck the syntax of the file. &quot;</span>
+                        <span class="s">&quot;The detailed error was: {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">file</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)))</span>
+</div>
+<div class="viewcode-block" id="Sensor.parseAndNormalizeRawFile"><a class="viewcode-back" href="../../sedater.html#sedater.rawvalidation.Sensor.parseAndNormalizeRawFile">[docs]</a>    <span class="k">def</span> <span class="nf">parseAndNormalizeRawFile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">file</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Converts the binary in 12B-datasets (ushort) and normalizes the data </span>
+
+<span class="sd">        Conversion is done in sets of 12B, each 2B tuple as 16bit unsigned </span>
+<span class="sd">        integers (nativ endian) and stored as one complete sensor segment.</span>
+<span class="sd">        The Sensorsegments are then normalized (with the sensor</span>
+<span class="sd">        calibration data)</span>
+
+<span class="sd">        :param file: path to the raw file</span>
+<span class="sd">        :type file: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="nb">file</span><span class="p">,</span> <span class="s">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">rawFile</span><span class="p">:</span>
+            <span class="n">structFmt</span> <span class="o">=</span> <span class="s">&#39;=HHHHHH&#39;</span>   <span class="c"># native endian; 6x unsigned 16bit integer</span>
+            <span class="n">structLen</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">calcsize</span><span class="p">(</span><span class="n">structFmt</span><span class="p">)</span> <span class="c"># calculate struct size</span>
+
+            <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">rawFile</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">structLen</span><span class="p">)</span> <span class="c"># read structLen bytes from binary</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">data</span><span class="p">:</span> <span class="k">break</span>
+
+                <span class="n">dataset</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="n">structFmt</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span> <span class="c"># Unpack binary data</span>
+                <span class="n">rawSegment</span> <span class="o">=</span> <span class="n">shared</span><span class="o">.</span><span class="n">Sensorsegment</span><span class="o">.</span><span class="n">_make</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">dataset</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">normalizedSensorSegments</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_normalizeRawSegment</span><span class="p">(</span><span class="n">rawSegment</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="Sensor._normalizeRawSegment"><a class="viewcode-back" href="../../sedater.html#sedater.rawvalidation.Sensor._normalizeRawSegment">[docs]</a>    <span class="k">def</span> <span class="nf">_normalizeRawSegment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rawSegment</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Normalizes the sensor data by applying the individual calibration file </span>
+<span class="sd">        for each sensor.</span>
+
+<span class="sd">        The normalization process is done by the following mathematical algorithm:</span>
+
+<span class="sd">        *Acceleration:*</span>
+<span class="sd">            (Rawvalue - ((plusG - minusG)/2)) / ((plusG - minusG)/2)</span>
+<span class="sd">        *Gyrometer:*</span>
+<span class="sd">            (Rawvalue - restingMean) / 2.731</span>
+<span class="sd">        with:</span>
+<span class="sd">            - Rawvalue    := the value given in the raw data file</span>
+<span class="sd">            - plusG       := the direction specific plus value of the calibration file</span>
+<span class="sd">            - minusG      := the direction specific minus value of the calibration file</span>
+<span class="sd">            - restingMean := the direction specific reastingMean value of the calibration file</span>
+
+<span class="sd">        :param rawSegment: the converted raw sensor dataset, which should be normalized</span>
+<span class="sd">        :type rawSegment: :class:`sedater.lib.shared.Sensorsegment`</span>
+<span class="sd">        :return: the normalized Segment</span>
+<span class="sd">        :rtype: :class:`sedater.lib.shared.Sensorsegment`</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">normSegment</span> <span class="o">=</span> <span class="p">[</span><span class="bp">None</span><span class="p">]</span> <span class="o">*</span> <span class="mi">6</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+            <span class="n">normSegment</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">rawSegment</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">calibration</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">calibration</span><span class="p">[</span><span class="mi">3</span> <span class="o">+</span> <span class="n">i</span><span class="p">])</span><span class="o">/</span><span class="mi">2</span><span class="p">))</span> \
+                    <span class="o">/</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">calibration</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">calibration</span><span class="p">[</span><span class="mi">3</span> <span class="o">+</span> <span class="n">i</span><span class="p">])</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">normSegment</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">rawSegment</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">calibration</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">6</span><span class="p">])</span><span class="o">/</span><span class="mf">2.731</span>
+
+        <span class="k">return</span> <span class="n">shared</span><span class="o">.</span><span class="n">Sensorsegment</span><span class="o">.</span><span class="n">_make</span><span class="p">(</span><span class="n">normSegment</span><span class="p">)</span>
+</pre></div></div></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, Ulli Goschler.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

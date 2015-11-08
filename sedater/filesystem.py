@@ -1,7 +1,7 @@
 # ./sedater/sedater/lib/filesystem.py
 # Author:   Ulli Goschler <ulligoschler@gmail.com>
 # Created:  Sat, 10.10.2015 - 12:00:05 
-# Modified: Fri, 06.11.2015 - 17:54:12
+# Modified: Sat, 07.11.2015 - 18:31:53
 
 import os
 import re
@@ -17,19 +17,21 @@ class Crawler(object):
     on the filename.
 
     Session Data (required) is usually prefixed by (case sensitive):
-    - GAstd
-    - GA
-    - P
-    - Pat
+        * GAstd
+        * GA
+        * P
+        * Pat
+
     Exercise Data (optional) by:
-    - E
+        - E
+
     Orientation data (required) by (case insensitive):
-    - left
-    - right
+        - left
+        - right
 
     In the following pairing process, individual sensor data files are paired 
     together based on the session (and if available: exercise) ID.
-    So each session should contain of a left and right sensor file.
+    So each session should contain a left and right sensor file.
     """
 
     def __init__(self):
