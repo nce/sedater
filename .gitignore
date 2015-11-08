@@ -3,3 +3,6 @@
 __pycache__/
 *.pyc
 sensorconvert.py
+_build/
+_static/
+_templates/
