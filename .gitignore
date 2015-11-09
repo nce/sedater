@@ -1,7 +1,9 @@
 *.swp
 .DS_Store
 __pycache__/
+env/
 *.pyc
+.python-version
 sensorconvert.py
 _build/
 _static/

@@ -1,7 +1,11 @@
 # ./sedater/export.py
 # Author:   Ulli Goschler <ulligoschler@gmail.com>
 # Created:  Sun, 08.11.2015 - 22:21:45 
-# Modified: Sun, 08.11.2015 - 23:08:56
+# Modified: Mon, 09.11.2015 - 12:12:20
+
+import csv
+
+from sedater.lib import shared
 
 class Exporter(object):
     """
@@ -16,15 +20,20 @@ class Exporter(object):
 
 class CSVExporter(Exporter):
 
-    def export(self, segments, exportLocation):
+    def export(self, segments, exportLocation, withHeader=False, withIndices=True):
         """
         Exports the given segments to a specific file in CSV notation
 
-        :param segments: A list (array) of segments which should be exported to 
-        the same file
+        :param segments: A list (array) of segments which should be exported to \
+                the same file
         :type segments: list of :class:`sedater.lib.shared.Sensorsegment`
         :param exportLocation: export path location (incl. filename)
         :type exportLocation: str
+        :param withHeader: Print a header line in the csv file, indicating the \
+                row attribute
+        :type withHeader: Boolean
+        :param withIndices: Print an Index in the first column
+        :type withIndices: Boolean
         :return: Indication whether the export succeeded
         :rtype: Boolean
         """
@@ -33,8 +42,22 @@ class CSVExporter(Exporter):
             with open(exportLocation, 'w') as exportFile:
                 # TODO: with headers, with indices
                 exp = csv.writer(exportFile)
-                exp.writerows([(value.accelX, value.accelY, value.accelZ,
+                if withHeader:
+                    if withIndices:
+                        # Header with indices
+                        exp.writerow(['Index', *shared.Sensorsegment._fields] )
+                    else:
+                        # header without indices
+                        exp.writerow([*shared.Sensorsegment._fields] )
+                if withIndices:
+                    # column with indices
+                    exp.writerows([(index+1, value.accelX, value.accelY, value.accelZ,
+                        value.gyroX, value.gyroY, value.gyroZ) for index,value in enumerate(segments)])
+                else:
+                    # column without indices
+                    exp.writerows([(value.accelX, value.accelY, value.accelZ,
                         value.gyroX, value.gyroY, value.gyroZ) for value in segments])
+
         except Exception as e:
             # TODO: handle common exceptions
             raise e
