@@ -1,7 +1,7 @@
 # ./sedater/lib/rawvalidation.py
 # Author:   Ulli Goschler <ulligoschler@gmail.com>
 # Created:  Wed, 28.10.2015 - 18:58:05 
-# Modified: Sun, 08.11.2015 - 22:21:36
+# Modified: Mon, 09.11.2015 - 21:42:41
 
 import os
 import csv
@@ -82,7 +82,7 @@ class Sensor(object):
 
         """
 
-        with open(file, 'r', newline='') as calibration:
+        with open(file, 'r') as calibration:
             # open csv calibration file
             csvList = list(csv.reader(calibration))
             # parse all csv entries into a flat list of floats

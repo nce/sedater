@@ -1,9 +1,11 @@
 # ./sedater/export.py
 # Author:   Ulli Goschler <ulligoschler@gmail.com>
 # Created:  Sun, 08.11.2015 - 22:21:45 
-# Modified: Mon, 09.11.2015 - 12:12:20
+# Modified: Mon, 09.11.2015 - 21:25:29
 
 import csv
+
+import sys
 
 from sedater.lib import shared
 
@@ -45,10 +47,13 @@ class CSVExporter(Exporter):
                 if withHeader:
                     if withIndices:
                         # Header with indices
-                        exp.writerow(['Index', *shared.Sensorsegment._fields] )
+                        header = ['Index']
+                        header.extend(shared.Sensorsegment._fields)
+                        exp.writerow(header)
                     else:
                         # header without indices
-                        exp.writerow([*shared.Sensorsegment._fields] )
+                        header = shared.Sensorsegment._fields
+                        exp.writerow(header)
                 if withIndices:
                     # column with indices
                     exp.writerows([(index+1, value.accelX, value.accelY, value.accelZ,
