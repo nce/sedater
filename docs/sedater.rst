@@ -1,11 +1,11 @@
 sedater package
 ===============
 
-Submodules
+Components
 ----------
 
-sedater.filesystem module
--------------------------
+Data Import
+-----------
 
 .. automodule:: sedater.filesystem
     :members:
@@ -20,16 +20,16 @@ sedater.main module
     :undoc-members:
     :show-inheritance:
 
-sedater.options module
-----------------------
+Command Line Options
+--------------------
 
 .. automodule:: sedater.options
     :members:
     :undoc-members:
     :show-inheritance:
 
-sedater.rawvalidation module
-----------------------------
+Raw Data Conversion and Normalization
+-------------------------------------
 
 .. automodule:: sedater.rawvalidation
     :members:
@@ -37,8 +37,16 @@ sedater.rawvalidation module
     :undoc-members:
     :show-inheritance:
 
+Data Export
+---------------------
+
+.. automodule:: sedater.export
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 sedater.lib.shared module
-----------------------------
+-------------------------
 
 .. automodule:: sedater.lib.shared
     :members:

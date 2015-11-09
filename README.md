@@ -41,12 +41,13 @@ pip install -r requirements.txt
 
 # Developer Documentation
 The code is annotated by [docstrings](https://en.wikipedia.org/wiki/Docstring), 
-which are automatically parsed by [Sphinx](http://sphinx-doc.org/) and online 
-available at [readthedocs.org](readthedocs.org):
+which are automatically parsed by [Sphinx](http://sphinx-doc.org/) and therefor 
+online available at [readthedocs.org](readthedocs.org):
 
 [Developer documentation](http://sedater.readthedocs.org/en/latest/)
 
 # Testing
-Run `nosetests` in the code directory (`sedater`). All testcases are 
-automatcially evaluated by [Travis CI](travis-ci.org) on each code
-update.
+Run `nosetests` in the code directory (`sedater`). 
+
+All testcases are automatcially evaluated by [Travis CI](travis-ci.org)
+on each code update.
