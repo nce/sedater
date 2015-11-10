@@ -1,7 +1,7 @@
-# ./sedater/lib/rawvalidation.py
+# ./sedater/rawvalidation.py
 # Author:   Ulli Goschler <ulligoschler@gmail.com>
 # Created:  Wed, 28.10.2015 - 18:58:05 
-# Modified: Mon, 09.11.2015 - 21:42:41
+# Modified: Tue, 10.11.2015 - 13:57:56
 
 import os
 import csv
@@ -15,16 +15,22 @@ class RawConverter(object):
     Convert binary-Sensorfiles to readable CSV
 
     Note: Conversation is currently limited to '.dat' files, to eliminate 
-    the chance of including accidently misplaced files in the directory
+    the chance of processing accidently misplaced files 
     """
 
-    def __init__(self, filesToConvert, sensors, csvHeaders = False):
+    def __init__(self, filesToConvert, sensors):
+        """
+        :param filesToConvert: list (array) of raw files which 
+                should be converted
+        :type filesToConvert: list of tuples of 
+                :class:`sedater.lib.shared.Sourcefile`
+        :param sensors: the uninitialized sensors
+        :type sensors: list of :class:`sedater.lib.shared.UninitializedSensor`
+        """
         self.filesToConvert   = filesToConvert
-        # 'sensors' has to be of type: UninitialziedSensor
         self.availableSensors = sensors
         # initialized sensors
         self.initSensors      = {}
-        self.withHeaders      = csvHeaders
 
         # if not self.leftSensorCalibrationFile or \
         #       not self.rightSensorCalibrationFile:

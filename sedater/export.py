@@ -1,7 +1,7 @@
 # ./sedater/export.py
 # Author:   Ulli Goschler <ulligoschler@gmail.com>
 # Created:  Sun, 08.11.2015 - 22:21:45 
-# Modified: Mon, 09.11.2015 - 21:25:29
+# Modified: Tue, 10.11.2015 - 14:02:08
 
 import csv
 
@@ -26,16 +26,14 @@ class CSVExporter(Exporter):
         """
         Exports the given segments to a specific file in CSV notation
 
-        :param segments: A list (array) of segments which should be exported to \
+        :param segments: A list (array) of segments which should be exported to
                 the same file
-        :type segments: list of :class:`sedater.lib.shared.Sensorsegment`
-        :param exportLocation: export path location (incl. filename)
-        :type exportLocation: str
-        :param withHeader: Print a header line in the csv file, indicating the \
-                row attribute
-        :type withHeader: Boolean
-        :param withIndices: Print an Index in the first column
-        :type withIndices: Boolean
+        :type segments: list of 
+                :class:`Sensorsegment <sedater.lib.shared.Sensorsegment>`
+        :param str exportLocation: export path location (incl. filename)
+        :param Boolean withHeader: Print a header line in the csv file, 
+                indicating the row attributes
+        :param Boolean withIndices: Print an Indexnumber in the first column
         :return: Indication whether the export succeeded
         :rtype: Boolean
         """

@@ -48,19 +48,19 @@ pip install -r requirements.txt
 The testcases are automatically running against multiple python versions:
 - Python3.5.0
 - Python3.4.2
-- Python3.3.4
+- Python3.3.5
+The [build status](https://travis-ci.org/nce/sedater) is 
+generally a good indicator of the runnable python versions.
 
 `Python2.7.10 & Python3.2` are currently not supported. This might change in the future.
 
-That's why the the [build status](https://travis-ci.org/nce/sedater) is 
-generally a good indicator of the python versions which are runable.n
 # Developer Documentation
 The code is annotated by [docstrings](https://en.wikipedia.org/wiki/Docstring), 
 which are automatically parsed by [Sphinx](http://sphinx-doc.org/) and therefore 
 online available at [readthedocs.org](readthedocs.org):
 
 Refer to the [Developer documentation](http://sedater.readthedocs.org/en/latest/)
-implementation details.
+for implementation specific details.
 
 # Testing
 Run `nosetests` in the code directory (`sedater`). 
