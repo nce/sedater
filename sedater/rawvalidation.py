@@ -1,7 +1,7 @@
 # ./sedater/rawvalidation.py
 # Author:   Ulli Goschler <ulligoschler@gmail.com>
 # Created:  Wed, 28.10.2015 - 18:58:05 
-# Modified: Tue, 10.11.2015 - 20:04:01
+# Modified: Tue, 10.11.2015 - 20:22:49
 
 import os
 import csv
@@ -14,7 +14,7 @@ class RawConverter(object):
     """
     Convert binary-Sensorfiles to readable CSV
 
-    Note: Conversation is currently limited to '.dat' files, to eliminate 
+    Note: conversion is currently limited to '.dat' files, to eliminate 
     the chance of processing accidently misplaced files 
     """
 
