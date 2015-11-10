@@ -1,7 +1,7 @@
 # ./sedater/rawvalidation.py
 # Author:   Ulli Goschler <ulligoschler@gmail.com>
 # Created:  Wed, 28.10.2015 - 18:58:05 
-# Modified: Tue, 10.11.2015 - 13:57:56
+# Modified: Tue, 10.11.2015 - 20:04:01
 
 import os
 import csv
@@ -20,12 +20,13 @@ class RawConverter(object):
 
     def __init__(self, filesToConvert, sensors):
         """
-        :param filesToConvert: list (array) of raw files which 
+        :param filesToConvert: the raw files which 
                 should be converted
         :type filesToConvert: list of tuples of 
                 :class:`sedater.lib.shared.Sourcefile`
         :param sensors: the uninitialized sensors
-        :type sensors: list of :class:`sedater.lib.shared.UninitializedSensor`
+        :type sensors: list of 
+            :class:`Uninitialized Sensors <sedater.lib.shared.UninitializedSensor>`
         """
         self.filesToConvert   = filesToConvert
         self.availableSensors = sensors

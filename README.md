@@ -49,10 +49,12 @@ The testcases are automatically running against multiple python versions:
 - Python3.5.0
 - Python3.4.2
 - Python3.3.5
-The [build status](https://travis-ci.org/nce/sedater) is 
-generally a good indicator of the runnable python versions.
+Rendering the [build status](https://travis-ci.org/nce/sedater) green
+is therefore a good indicator that the listed python versions are
+likely to be working.
 
-`Python2.7.10 & Python3.2` are currently not supported. This might change in the future.
+`Python2.7.10 & Python3.2` are currently not supported. 
+This might change in the future.
 
 # Developer Documentation
 The code is annotated by [docstrings](https://en.wikipedia.org/wiki/Docstring), 
