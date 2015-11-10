@@ -37,6 +37,14 @@ Raw Data Conversion and Normalization
     :undoc-members:
     :show-inheritance:
 
+Text Data Conversion
+--------------------
+
+.. automodule:: sedater.txtvalidation
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Data Export
 ---------------------
 

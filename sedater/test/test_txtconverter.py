@@ -1,7 +1,7 @@
 # ./sedater/test/test_txtconverter.py
 # Author:   Ulli Goschler <ulligoschler@gmail.com>
 # Created:  Tue, 10.11.2015 - 20:04:24 
-# Modified: Tue, 10.11.2015 - 20:21:23
+# Modified: Tue, 10.11.2015 - 23:44:24
 
 import unittest
 from testfixtures import TempDirectory
@@ -19,6 +19,13 @@ class TestTxtConverter(unittest.TestCase):
         self.reffile = shared.Sourcefile._make([self.ref, 'txtvalidation.txt', '', '', ''])
     def tearDown(self):
         TempDirectory.cleanup_all()
-    def _test_correct_txt_file(self):
+    def test_correct_txt_file(self):
+        reffile = self.tmp.write('txtvalidation.txt', 
+                b"Foo, Bar\nFaz, Baz\n1,2\n3,4")
+        refsource = shared.Sourcefile._make([reffile, 
+            'txtvalidation.txt', '', '', ''])
+        ref = ([['Foo', ' Bar']], [{' Baz': '2', 'Faz': '1'}, 
+            {' Baz': '4', 'Faz': '3'}])
         conv = TxtConverter([])
-        print(conv.parseTxtFile(self.reffile), file=sys.stderr)
+        res = conv.parseTxtFile(refsource)
+        self.assertEqual(ref,res)
