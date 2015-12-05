@@ -48,12 +48,17 @@ Text Data Conversion
 Data Export
 ---------------------
 
+Both - the Raw and the Text - data is exported to the filesystem. Due to
+the nature of the Rawfiles they are always exported as CSV files to the 
+respective ``session`` directory. The Textfiles allow multiple export 
+schemes like ``json`` or ``xml``, which are currently implemented.
+
 .. automodule:: sedater.export
     :members:
     :undoc-members:
     :show-inheritance:
 
-sedater.lib.shared module
+Library Files
 -------------------------
 
 .. automodule:: sedater.lib.shared

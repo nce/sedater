@@ -1,7 +1,7 @@
 # ./sedater/lib/shared.py
 # Author:   Ulli Goschler <ulligoschler@gmail.com>
 # Created:  Thu, 29.10.2015 - 19:05:20 
-# Modified: Tue, 10.11.2015 - 13:56:14
+# Modified: Sat, 05.12.2015 - 17:57:52
 
 from enum import Enum
 from typing import NamedTuple
@@ -95,3 +95,23 @@ The segment might by normalized or not. It's usually extracted by the
 :param float gyroY: rotation on the Y-axis
 :param float gyroZ: rotation on the Z-axis
 """
+
+def indentXML(elem, level=0):
+	"""
+	Helper Method to provide indention in .xml files
+	from: http://effbot.org/zone/element-lib.htm#prettyprint
+	"""
+	i = "\n" + level*"  "
+	if len(elem):
+		if not elem.text or not elem.text.strip():
+			elem.text = i + "  "
+		if not elem.tail or not elem.tail.strip():
+			elem.tail = i
+		for elem in elem:
+			indent(elem, level+1)
+		if not elem.tail or not elem.tail.strip():
+			elem.tail = i
+	else:
+		if level and (not elem.tail or not elem.tail.strip()):
+			elem.tail = i
+

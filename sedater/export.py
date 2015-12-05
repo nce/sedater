@@ -1,7 +1,7 @@
 # ./sedater/export.py
 # Author:   Ulli Goschler <ulligoschler@gmail.com>
 # Created:  Sun, 08.11.2015 - 22:21:45 
-# Modified: Tue, 10.11.2015 - 14:02:08
+# Modified: Sat, 05.12.2015 - 18:05:42
 
 import csv
 
@@ -19,6 +19,55 @@ class Exporter(object):
 
     def __init__(self):
         pass
+
+class XMLExporter(Exporter):
+    def __init__(self, session, exercise, exportLocation):
+        """
+        Exports the given validation to a specific file in XML notation
+
+        :param str session: The releated session
+        :param str exercise: The related exercise
+        :param str exportLocation: Path to the export directory
+        """
+
+        self.session  = session
+        self.exercise = exercise
+        self.exportLocation = exportLocation
+        self.annotationFile = 'annotation.xml'
+    def export(self, validationdata):
+        """
+        :param validationdata: The parsed :class:`Textfile <sedater.txtvalidation.TxtConverter.parseTxtFile>`
+        :param type validationdata: tuple of ``list`` of ``list`` and ``list`` of ``dictionary``
+        """
+
+        filename = 'annotation.xml'
+        self._exportMetaInformationToXml(filename)
+
+    def _exportMetaInformationToXML(self, annotationFile):
+        """
+        Exports the metainformation to a seperate XML file
+
+        :param str annotationFile: Full path to the annotation file
+        """
+        filename = 'metainformation.xml'
+
+        # Build XML structure
+        document = et.Element('meta')
+
+        session = et.SubElement(document, 'Session')
+        session.text = self.session
+
+        exercise = et.SubElement(document, 'Exercise')
+        exercise.text = self.exercise
+
+        annotation = et.SubElement(document, 'Annotationfile')
+        annotation.text = annotationFile
+
+        export = et.ElementTree(document)
+        shared.indentXML(document)
+        export.write(self.exportLocation + filename, encoding='utf-8', 
+                xml_declaration=True)
+
 
 class CSVExporter(Exporter):
 

@@ -52,7 +52,7 @@ The testcases are automatically running against multiple python versions:
 
 Rendering a green [build status](https://travis-ci.org/nce/sedater) 
 is therefore a good indicator that the listed python versions are
-likely to be runnable.
+likely to be working.
 
 `Python2.7.10 & Python3.2` are currently not supported. 
 This might change in the future.
