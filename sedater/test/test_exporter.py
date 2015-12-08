@@ -1,7 +1,7 @@
 # ./sedater/test/test_exporter.py
 # Author:   Ulli Goschler <ulligoschler@gmail.com>
 # Created:  Sun, 08.11.2015 - 23:09:28 
-# Modified: Tue, 08.12.2015 - 23:04:08
+# Modified: Tue, 08.12.2015 - 23:37:53
 
 import unittest
 import os
@@ -51,10 +51,19 @@ class TestXMLExporter(unittest.TestCase):
         self.assertEquals(validation.attrib, {'Type': 'Gold'})
         sensor = validation.find('Sensor')
         self.assertEquals(sensor.attrib, {'Orientation': 'left'})
-
-        # with open(self.dir + 'annotation.xml') as f:
-        #     print(f.read(), file=sys.stderr)
-        # print(sensor.attrib,file=sys.stderr)
+        meta = sensor.find('Meta')
+        self.assertEquals(meta[0].tag, 'Foo')
+        self.assertEquals(meta[0].text, 'Bar')
+        content = sensor.find('Content')
+        self.assertEquals(content[0].tag,     'No1')
+        self.assertEquals(content[0][0].tag,  'Fu')
+        self.assertEquals(content[0][0].text, '1')
+        self.assertEquals(content[0][1].tag,  'Baz')
+        self.assertEquals(content[0][1].text, '2')
+        self.assertEquals(content[1][0].tag,  'Fu')
+        self.assertEquals(content[1][0].text, '3')
+        self.assertEquals(content[1][1].tag,  'Baz')
+        self.assertEquals(content[1][1].text, '4')
 
 class TestCSVExporter(unittest.TestCase):
     def setUp(self):
