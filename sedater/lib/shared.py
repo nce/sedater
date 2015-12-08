@@ -1,25 +1,43 @@
 # ./sedater/lib/shared.py
 # Author:   Ulli Goschler <ulligoschler@gmail.com>
 # Created:  Thu, 29.10.2015 - 19:05:20 
-# Modified: Sat, 05.12.2015 - 17:57:52
+# Modified: Tue, 08.12.2015 - 22:35:59
 
 from enum import Enum
 from typing import NamedTuple
 
 class Orientation(Enum):
     """
-    Define the orientation a sensor has. Where the orientation is 
+    Define the orientation a sensor has. Where the term ``orientation`` is 
     kind of synonymous to an sensor ID.
 
     While this is currently only attributable to ``left`` or ``right`` 
-    (originating from foot sensors), this 
-    might be expandable in the future.
+    (originating from foot sensors), this might be expandable in the future.
 
     The ``name`` should always match its 'identification' on the 
     corresponding filename. The assigned values are currently arbitrary.
     """
     left  = 1
     right = 2
+
+Validationfile = NamedTuple('Validationfile', [
+          ('sourcefile', NamedTuple)
+        , ('type', str)
+        , ('properties', list)
+        , ('content', dict)
+    ])
+"""
+Validationfiles are created by the sensor and parsed by the 
+:class:`TxtConverter <sedater.txtvalidation.TxtConverter>`. The parsed
+data is stored in this object for later export.
+
+:param sourcefile: The Sourcefile object associated with this Validationfile
+:type sourcefile: :class:`Sourcefile <sedater.lib.shared.Sourcefile>` 
+:param str type: Type of the validation file (specified inside the file)
+:param list properties: Additional properties extracted from the file
+:param content: Actual content of the file
+:type content: list(dict)
+"""
 
 Sourcefile = NamedTuple('Sourcefile', [
           ('path', str)
@@ -97,21 +115,21 @@ The segment might by normalized or not. It's usually extracted by the
 """
 
 def indentXML(elem, level=0):
-	"""
-	Helper Method to provide indention in .xml files
-	from: http://effbot.org/zone/element-lib.htm#prettyprint
-	"""
-	i = "\n" + level*"  "
-	if len(elem):
-		if not elem.text or not elem.text.strip():
-			elem.text = i + "  "
-		if not elem.tail or not elem.tail.strip():
-			elem.tail = i
-		for elem in elem:
-			indent(elem, level+1)
-		if not elem.tail or not elem.tail.strip():
-			elem.tail = i
-	else:
-		if level and (not elem.tail or not elem.tail.strip()):
-			elem.tail = i
+    """
+    Helper Method to provide indention in .xml files
+    from: http://effbot.org/zone/element-lib.htm#prettyprint
+    """
+    i = "\n" + level*"  "
+    if len(elem):
+        if not elem.text or not elem.text.strip():
+            elem.text = i + "  "
+        if not elem.tail or not elem.tail.strip():
+            elem.tail = i
+        for elem in elem:
+            indentXML(elem, level+1)
+        if not elem.tail or not elem.tail.strip():
+            elem.tail = i
+    else:
+        if level and (not elem.tail or not elem.tail.strip()):
+            elem.tail = i
 
