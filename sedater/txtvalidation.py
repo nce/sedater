@@ -1,10 +1,12 @@
 # ./sedater/txtvalidation.py
 # Author:   Ulli Goschler <ulligoschler@gmail.com>
 # Created:  Tue, 10.11.2015 - 12:22:28 
-# Modified: Sat, 05.12.2015 - 16:59:13
+# Modified: Tue, 08.12.2015 - 22:06:27
 
 import csv
 import re
+
+from sedater.lib import shared as lib
 
 class TxtConverter(object):
     """
@@ -46,9 +48,10 @@ class TxtConverter(object):
         :param sourcefile: path to the validation-text file
         :type sourcefile: :class:`Sourcefile <sedater.lib.shared.Sourcefile>`
         :return: the meta information and validation-data
-        :rtype: tuple of ``list`` of ``list`` (storing metainformation) and 
-            ``list`` of ``dictionary`` (storing validation-data)
+        :rtype: :class:`Validationfile <sedater.lib.shared.Validationfile>`
         """
+        validationType = ''
+
         with open(sourcefile.path, 'r') as csvfile:
             reader = csv.reader(csvfile)
             i          = 0
@@ -57,21 +60,27 @@ class TxtConverter(object):
             content    = []
             for row in reader:
                 if re.match('^[0-9]+', row[0]): break
+                if row[0] == 'ValidationType': validationType = row[1].strip()
                 i = i+1
-                attributes.append(row)
+                attributes.append(list(map(str.strip, row)))
 
-            i = i - 1               # set the line indicator two lines up
-            csvfile.seek(0)         # scroll back filedescriptor position
-            attributes.pop()        # remove said last two elements
-
+            # set the line indicator one lines up
+            i = i - 1
             # reread the whole file
+            csvfile.seek(0)
+            # remove last element (which are the headers for the content)
+            attributes.pop()
+
+            # scroll file until previously determined start of content
             while s < i:
                 csvfile.readline()
                 s = s + 1
-            # scroll file until previously determined start of content
+
+            # sometime the header have trailing spaces, remove them
+            header = [h.strip() for h in csvfile.readline().split(',')]
             # now parse all the content into a tmp dictionary
-            d = csv.DictReader(csvfile)
+            d = csv.DictReader(csvfile, fieldnames=header)
             for row in d:
                 content.append(row)
 
-            return (attributes, content)
+        return lib.Validationfile._make([sourcefile, validationType, attributes, content])
