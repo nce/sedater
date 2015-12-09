@@ -1,7 +1,7 @@
 #!/bin/bash
 # ./sedater/bin/plotter
 # Author:   Ulli Goschler <ulligoschler@gmail.com>
-# Modified: Wed, 09.12.2015 - 14:20:31
+# Modified: Thu, 10.12.2015 - 00:14:55
 
 BINPATH=`dirname $0`
-python "$BINPATH/../plotter/main.py" $@
+python "$BINPATH/../sedater/plotter/main.py" $@
