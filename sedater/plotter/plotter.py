@@ -1,6 +1,6 @@
 # ./sedater/plotter/plotter.py
 # Author:   Ulli Goschler <ulligoschler@gmail.com>
-# Modified: Thu, 10.12.2015 - 00:01:38
+# Modified: Thu, 10.12.2015 - 00:36:06
 
 import os, sys
 import numpy as np
@@ -50,15 +50,16 @@ class Plotter(object):
         # multiplot feature disabled
         self.multiplot = False
 
-    def plot(self, sourceFile):
+    def plot(self, sourceFile, orientation):
         """
         Plot a given ``.csv`` Rawvalidation file.
 
         :param str sourceFile: Path to the to-be-plotted file
+        :param str orientation: Identification which sensor to plot
         """
         # gather overlay data
         if self.annotationFile:
-            overlay = self._extractOverlayData(self.annotationFile, 'left')
+            overlay = self._extractOverlayData(self.annotationFile, orientation)
         else:
             overlay = False
 

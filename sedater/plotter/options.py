@@ -1,6 +1,6 @@
 # ./sedater/plotter/options.py
 # Author:   Ulli Goschler <ulligoschler@gmail.com>
-# Modified: Wed, 09.12.2015 - 23:23:25
+# Modified: Thu, 10.12.2015 - 00:11:55
 
 import sys, os
 import getopt, logging

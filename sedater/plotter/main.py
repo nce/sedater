@@ -1,16 +1,23 @@
 # ./sedater/plotter/main.py
 # Author:   Ulli Goschler <ulligoschler@gmail.com>
-# Modified: Wed, 09.12.2015 - 23:20:13
+# Modified: Thu, 10.12.2015 - 00:38:20
+
+import sys
+import re
 
 from options import CLIParser
 from plotter import Plotter
 
-import sys
 
 if __name__ == "__main__":
     cli = CLIParser()
     if not cli.parseForPlotter(sys.argv[1:]):
         sys.exit(2)
+
+    # to draw a correct Gold Standard overlay, we need to know which 
+    # sensor to extract from the Annotationfile
+    availableOrientation = ['left', 'right']
+    orientationRE = ".*(" + ")|(".join(availableOrientation) + ").*"
 
     # only graph the Gold Standard overlay if we have an Annotationfile and 
     # the user hasn't disabled the overlay option
@@ -26,5 +33,13 @@ if __name__ == "__main__":
             , cli.args.csv_headers)
 
     for inputFile in cli.args.plottingSourceFile:
-        plt.plot(inputFile)
+        m = re.match(orientationRE, inputFile)
+        if m:
+            plt.plot(inputFile, m.group(1))
+        else:
+            raise AttributeError("Inputfile '{}' has no indication in its "
+                    "filename which sensor"
+                    " to plot. Sensor identification has to be contained in the"
+                    " filename. Available identifications are: {}"
+                    .format(inputFile, availableOrientation))
 
