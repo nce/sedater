@@ -1,6 +1,6 @@
 # ./sedater/plotter/plotter.py
 # Author:   Ulli Goschler <ulligoschler@gmail.com>
-# Modified: Wed, 09.12.2015 - 23:16:28
+# Modified: Wed, 09.12.2015 - 23:26:51
 
 import os, sys
 import numpy as np
@@ -128,6 +128,7 @@ class Plotter(object):
         ax = acceleration.add_subplot(111)
         ax.set_title('Acceleration of {}'.format(plotFile))
         for i, accel in enumerate(self.graph[0]):
+            ax = acceleration.add_subplot(112)
             ax.plot(
                   src['x']
                 , src[accel]
