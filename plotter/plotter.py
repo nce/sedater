@@ -1,6 +1,6 @@
 # ./sedater/plotter/plotter.py
 # Author:   Ulli Goschler <ulligoschler@gmail.com>
-# Modified: Wed, 09.12.2015 - 23:26:51
+# Modified: Thu, 10.12.2015 - 00:01:38
 
 import os, sys
 import numpy as np
@@ -47,6 +47,8 @@ class Plotter(object):
         self.colors = ['Darkred', 'ForestGreen', 'Navy']
         self.outputDir = outputDir
         self.annotationFile = annotationFile
+        # multiplot feature disabled
+        self.multiplot = False
 
     def plot(self, sourceFile):
         """
@@ -67,9 +69,12 @@ class Plotter(object):
             outputDir = os.path.dirname(sourceFile) + '/'
         accelFile = outputDir + 'accel-' +\
             os.path.splitext(os.path.basename(sourceFile))[0] + '.svg'
+        gyroFile = outputDir + 'gyro-' +\
+            os.path.splitext(os.path.basename(sourceFile))[0] + '.svg'
 
         src = self._importFile(sourceFile)
-        self._plotAcceleration(src, sourceFile, accelFile, overlay)
+        self._plotData('accel', src, sourceFile, accelFile, overlay)
+        self._plotData('gyro', src, sourceFile, gyroFile, overlay)
 
     def _extractOverlayData(self, xmlFile, sensorOrientation):
         """
@@ -122,25 +127,42 @@ class Plotter(object):
 
         return exp
 
-    def _plotAcceleration(self, src, plotFile, outputFile, overlay):
+    def _plotData(self, identity, src, plotFile, outputFile, overlay):
+        # determine the max y-values for best overlay placement
+        maxima = []
         acceleration = plt.figure()
-        # create subplot with 1 row, 1 column and let it be the first one
-        ax = acceleration.add_subplot(111)
-        ax.set_title('Acceleration of {}'.format(plotFile))
-        for i, accel in enumerate(self.graph[0]):
-            ax = acceleration.add_subplot(112)
+
+        if self.multiplot:
+            plots = len(self.graph[0])
+        else:
+            # create only one plot
+            ax = acceleration.add_subplot(111)
+            plots = 1
+
+        if identity == 'accel':
+            source = self.graph[0]
+        elif identity == 'gyro':
+            source = self.graph[1]
+
+        for i, accel in enumerate(source):
+            j = i + 1 if self.multiplot else 1
+            ax = acceleration.add_subplot(plots,1,j)
+            ax.set_title('{} of {}'.format(identity, plotFile))
             ax.plot(
                   src['x']
                 , src[accel]
                 , color=self.colors[i]
                 , label=accel)
+            maxima.append(max(src[accel]))
         if overlay:
+            # place overlay arrows at 1/3 of y-max
+            yOverlay = 0.3 * max(maxima)
             legend = []
             for gs in overlay:
                 ax.annotate(''
-                        , xy=(gs['start'],-4)
+                        , xy=(gs['start'],yOverlay)
                         , xycoords='data'
-                        , xytext=(gs['end'],-4)
+                        , xytext=(gs['end'],yOverlay)
                         , textcoords='data'
                         , horizontalalignment='bottom'
                         , verticalalignment='center'
