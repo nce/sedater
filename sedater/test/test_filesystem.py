@@ -1,7 +1,7 @@
 # ./sedater/test/test_filesystem.py
 # Author:   Ulli Goschler <ulligoschler@gmail.com>
 # Created:  Sun, 11.10.2015 - 20:21:18 
-# Modified: Sun, 08.11.2015 - 23:09:47
+# Modified: Thu, 10.12.2015 - 19:20:34
 
 import unittest
 from testfixtures import TempDirectory
@@ -10,6 +10,7 @@ import os
 
 from sedater.filesystem import Crawler
 from sedater.lib.shared import Sourcefile
+from sedater.lib.shared import Orientation
 
 class TestFilesystemCrawler(unittest.TestCase):
     filename = 'foobar.txt'
@@ -48,30 +49,30 @@ class TestFilesystemCrawler(unittest.TestCase):
 
     # Pxx_Eyy_right|left (eGaitDatabase)
     def test_S_E_O_format(self):
-        self.dummyFile('P01_E2_right.dat', ['01', '2', 'right'])
+        self.dummyFile('P01_E2_right.dat', ['01', '2', Orientation.right])
 
     # GAxxEyy_right|left (eGaitDatabase3/Controls)
     def test_SE_O_format(self):
-        self.dummyFile('GA112030E3_left.txt', ['112030', '3', 'left'])
+        self.dummyFile('GA112030E3_left.txt', ['112030', '3', Orientation.left])
 
     # PxxEyy_right|left (eGaitDatabase3/Geriatrics)
     def test_SE_O_format2(self):
-        self.dummyFile('P50E6_left.txt', ['50', '6', 'left'])
+        self.dummyFile('P50E6_left.txt', ['50', '6', Orientation.left])
 
     # PatxxWald(left|right)Foot_Sensor_Date (eGaitDatabase3/GeriatricsGSTD/4MW)
     def test_SO_format(self):
         self.dummyFile('Pat1WaldrightFoot_1eea_20140325133006.dat', 
-                ['1Wald', '', 'right'])
+                ['1Wald', '', Orientation.right])
 
     # GAxx_(Left|Right)Foot_Sensor_Date (eGaitDatabase3/Controls/4MW)
     def test_SO_format2(self):
         self.dummyFile('GA214026LeftFoot_1eea_20140428110132.dat', 
-                ['214026', '', 'left'])
+                ['214026', '', Orientation.left])
 
     # GAstdxx_(Left|Right)Foot_Sensor_Date (eGaitDatabase3/Controls/4MW)
     def test_SO_format3(self):
         self.dummyFile('GAstd45jwRightFoot_1d68_20140506123332.dat', 
-                ['45jw', '', 'right'])
+                ['45jw', '', Orientation.right])
 
     def test_correct_pairing(self):
         left  = self.tmp.write(self.dir + 'P01_E2_left.txt', b'')
