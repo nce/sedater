@@ -7,7 +7,7 @@ systems like the Shimmer R2 or Vicon sensors. It converts the ValidationData to
 a more machine processable format and groups individual session data together.
 
 # Basic Functionality
-The tool includes two (somewhat) indepent utilities:
+The tool includes two (somewhat) independent utilities:
 - The parser, processor and exporter of Sensor-Validation files, called ``sedater``
 - The plotter for SVG-graphics, called ``plotter``
 
@@ -65,9 +65,9 @@ according to the following pattern:
      With each single datum as uint16 (unsigned short)
         which composes one dataset to an 12B Array
 ```
-After the import and unacking of the binaries, the data needs to be normalized.
+After the import and unpacking of the binaries, the data needs to be normalized.
 
-Each Sensor provides a unique CSV calibration file (provided by commandline),
+Each Sensor provides a unique CSV calibration file (provided on commandline),
 with which the data is normalized by offset calculation.
 
 The now normalized data is later exported as CSV files.
@@ -121,7 +121,7 @@ binarys from the ``bin`` directory:
 Consult the help message for command line parameters.
 
 If you are on a Windows system (or don't have access to ``/bin/bash``), run the
-``main.py`` respectivly:
+``main.py`` respectively:
 ```
 ./sedater/main.py --help
 ./sedater/plotter/main.py --help
@@ -130,7 +130,7 @@ If you are on a Windows system (or don't have access to ``/bin/bash``), run the
 ## Usage Examples
 ```
 ./bin/sedater -r tmp/A6DV.csv -l tmp/A917.csv -c -o tmp/exp/ tmp/ValidationRawData\
-tmp/GoldStandard_GaitRite tmp/GoldStandard_StrideBorders
+    tmp/GoldStandard_GaitRite tmp/GoldStandard_StrideBorders
 ```
 resulting in:
 ```
@@ -143,10 +143,12 @@ tmp/exp
 ```
 and after plotting:
 ```
-./bin/plotter -c -g gyroY -x tmp/exp/session2_E4/annotation.xml tmp/exp/session2_E4/leftSensorNormalized.csv tmp/exp/session2_E4/rightSensorNormalized.csv
+./bin/plotter -c -g gyroY -x tmp/exp/session2_E4/annotation.xml\
+    tmp/exp/session2_E4/leftSensorNormalized.csv\
+    tmp/exp/session2_E4/rightSensorNormalized.csv
 ```
 the following image is created:
-![gyroY Plot](docs/images/gyro-rightSensorNormalized.svg)
+![gyroY Plot](docs/images/gyro-rightSensorNormalized.png)
 
 # Developer Documentation
 The code is annotated by [docstrings](https://en.wikipedia.org/wiki/Docstring),
