@@ -1,33 +1,31 @@
 # ./sedater/rawvalidation.py
 # Author:   Ulli Goschler <ulligoschler@gmail.com>
 # Created:  Wed, 28.10.2015 - 18:58:05 
-# Modified: Tue, 10.11.2015 - 20:22:49
+# Modified: Thu, 10.12.2015 - 12:30:04
 
 import os
 import csv
 import typing
 import struct
 
-from sedater.lib import shared
+from lib import shared
 
 class RawConverter(object):
     """
     Convert binary-Sensorfiles to readable CSV
 
-    Note: conversion is currently limited to '.dat' files, to eliminate 
-    the chance of processing accidently misplaced files 
+    Note: conversion is currently limited to ``.dat`` files, to eliminate 
+    the chance of processing accidently misplaced files.
+
+    :param filesToConvert: the raw files which should be converted
+    :type filesToConvert: list of tuples of
+            :class:`Sourcefile  <lib.shared.Sourcefile>`
+    :param sensors: the uninitialized sensors
+    :type sensors: list of
+        :class:`Uninitialized Sensors <lib.shared.UninitializedSensor>`
     """
 
     def __init__(self, filesToConvert, sensors):
-        """
-        :param filesToConvert: the raw files which 
-                should be converted
-        :type filesToConvert: list of tuples of 
-                :class:`sedater.lib.shared.Sourcefile`
-        :param sensors: the uninitialized sensors
-        :type sensors: list of 
-            :class:`Uninitialized Sensors <sedater.lib.shared.UninitializedSensor>`
-        """
         self.filesToConvert   = filesToConvert
         self.availableSensors = sensors
         # initialized sensors
@@ -40,10 +38,27 @@ class RawConverter(object):
         #           error in the Validationdata. Proceed with caution.")
 
     def processDatFiles(self):
+        """
+        Spins off the normalization for each RawValidation file. 
+
+        First it initializes the sensors by creating :class:`Sensor`
+        objects.
+        Then the :class:`Sourcefile <lib.shared.Sourcefile>` objects are
+        parsed and if they contain RawValidation data handed off to
+        the :class:`Sensor.parseAndNormalize <Sensor.parseAndNormalizeRawFile>` 
+        function.
+
+        The - now normalized - Sensor values are stored in:
+        ``self.normalizedSensorSegments`` as 
+        list(:class:`Sensorsegment <lib.shared.Sensorsegment>`)
+
+        """
         for i in self.availableSensors:
             if not isinstance(i, tuple):
                 raise TypeError("Wrong type supplied, should be of type '{}', "
-                        "is type: '{}'".format(type(shared.UninitializedSensor), type(i)))
+                        "is type: '{}'".format(
+                            type(shared.UninitializedSensor), type(i))
+                        )
 
             self.initSensors[i.orientation.name] = Sensor(
                     i.orientation, i.calibrationFile)
@@ -56,8 +71,10 @@ class RawConverter(object):
             for i in range(len(rawPair)):
                 # skip all non '.dat' files
                 if '.dat' != os.path.splitext(rawPair[i].filename)[1]: continue
-                self.initSensors[rawPair[i].orientation.name].parseAndNormalizeRawFile(
-                        rawPair[i].path + "/" + rawPair[i].filename)
+                self.initSensors[rawPair[i].orientation.name]\
+                        .parseAndNormalizeRawFile(
+                            rawPair[i].path + "/" + rawPair[i].filename)
+
 
 class Sensor(object):
     """
@@ -88,6 +105,11 @@ class Sensor(object):
         :type file: str
 
         """
+        if not file or not os.path.isfile(file):
+            raise AttributeError("Either no or an non existant calibration "
+                    "file was provided for the {}-Sensor: {}. Please"
+                    " check your command line arguments."
+                    .format(self.orientation.name, file))
 
         with open(file, 'r') as calibration:
             # open csv calibration file
@@ -115,12 +137,33 @@ class Sensor(object):
 
         Conversion is done in sets of 12B, each 2B tuple as 16bit unsigned 
         integers (nativ endian) and stored as one complete sensor segment.
-        The Sensorsegments are then normalized (with the sensor
+        The Sensorsegments are then
+        :class:`normalized <Sensor._normalizeRawSegment>` (with the sensor
         calibration data)
 
-        :param file: path to the raw file
-        :type file: str
+        .. code-block:: none
+
+            Binary File Format
+                          1 11
+             12 34 56 78 90 12 Bytes
+            ,----------------------
+            |  |  |  |  |  |  | ...
+            `----------------------
+              ^  ^  ^  ^  ^  ^
+              |  |  |  |  |  `- Gyro Z
+              |  |  |  |  `---- Gyro Y
+              |  |  |  `------- Gyro X
+              |  |  `---------- Accel Z
+              |  `------------- Accel Y
+              `---------------- Accel X
+              With each single datum as uint16 (unsigned short)
+                Which composes one dataset to an 12B Array
+
+
+        :param str file: path to the raw file
         """
+        #:return: List of the normalized Sensorsegements
+        #:rtype: list of :class:`Sensorsgement <lib.shared.Sensorsegment>`
 
         with open(file, 'rb') as rawFile:
             structFmt = '=HHHHHH'   # native endian; 6x unsigned 16bit integer
@@ -133,7 +176,6 @@ class Sensor(object):
                 dataset = struct.unpack(structFmt, data) # Unpack binary data
                 rawSegment = shared.Sensorsegment._make(list(dataset))
                 self.normalizedSensorSegments.append(self._normalizeRawSegment(rawSegment))
-            # TODO: return as Segment maybe?
 
     def _normalizeRawSegment(self, rawSegment):
         """
@@ -153,9 +195,9 @@ class Sensor(object):
             - restingMean := the direction specific reastingMean value of the calibration file
 
         :param rawSegment: the converted raw sensor dataset, which should be normalized
-        :type rawSegment: :class:`sedater.lib.shared.Sensorsegment`
+        :type rawSegment: :class:`Sensorsegment <lib.shared.Sensorsegment>`
         :return: the normalized Segment
-        :rtype: :class:`sedater.lib.shared.Sensorsegment`
+        :rtype: :class:`Sensorsegment <lib.shared.Sensorsegment>`
 
         """
         normSegment = [None] * 6
