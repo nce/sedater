@@ -1,6 +1,6 @@
 # ./sedater/plotter/plotter.py
 # Author:   Ulli Goschler <ulligoschler@gmail.com>
-# Modified: Thu, 10.12.2015 - 16:24:44
+# Modified: Thu, 10.12.2015 - 20:08:46
 
 import os, sys
 import numpy as np
@@ -128,8 +128,11 @@ class Plotter(object):
                         start = step.text
                     elif step.tag.lower() == 'end':
                         end = step.text
-                properties = {'id': title, 'start': start, 'end': end}
-                exp.append(properties)
+                try:
+                    properties = {'id': title, 'start': start, 'end': end}
+                    exp.append(properties)
+                except Exception:
+                    return False
         else:
             return False
 
