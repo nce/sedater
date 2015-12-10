@@ -1,6 +1,6 @@
-# ./sedater/lib/options.py
+# ./sedater/options.py
 # Author:   Ulli Goschler <ulligoschler@gmail.com>
-# Modified: Thu, 10.12.2015 - 14:07:53
+# Modified: Thu, 10.12.2015 - 19:04:12
 
 import argparse
 
@@ -14,7 +14,7 @@ class CLIParser(object):
     def parseForSedater(self, arguments):
         """
         :param list arguments: List of commandline arguments
-        :return: Indicator of the successfull cli parsing
+        :return: Indicator of the successful cli parsing
         :rtype: bool
         """
         parser = argparse.ArgumentParser(
@@ -30,7 +30,7 @@ class CLIParser(object):
                 , formatter_class=argparse.RawTextHelpFormatter)
         parser.add_argument('-c', '--csv-headers'
                 , action='store_true'
-                , help='Toggle if the exported RawValidation files should '
+                , help='Toggle if the exported RawValidation files '
                     'should contain a header line (default: False)')
         parser.add_argument('-l', '--left-calibration'
                 , help='Path to the calibration file for the left sensor.'
@@ -47,6 +47,6 @@ class CLIParser(object):
                 , help='Directory or file which should be crawled for'
                     ' Validationfiles')
 
-        self.args = parser.parse_args()
+        self.args = parser.parse_args(arguments)
 
         return True

@@ -1,11 +1,11 @@
 # ./sedater/txtvalidation.py
 # Author:   Ulli Goschler <ulligoschler@gmail.com>
 # Created:  Tue, 10.11.2015 - 12:22:28 
-# Modified: Thu, 10.12.2015 - 15:01:58
+# Modified: Thu, 10.12.2015 - 17:16:13
 
 import csv, re, os
 
-from lib import shared as lib
+from sedater.lib import shared as lib
 
 class TxtConverter(object):
     """

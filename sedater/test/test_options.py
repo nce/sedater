@@ -1,7 +1,7 @@
 # ./sedater/test/test_options.py
 # Author:   Ulli Goschler <ulligoschler@gmail.com>
 # Created:  Mon, 05.10.2015 - 12:59:56 
-# Modified: Thu, 10.12.2015 - 19:16:47
+# Modified: Thu, 10.12.2015 - 19:41:38
 
 import unittest
 
@@ -12,13 +12,13 @@ class TestCommandLineParameters(unittest.TestCase):
         self.cli = CLIParser()
 
     def test_default_settings(self):
-        self.cli.parseForSedater(None)
+        self.cli.parseForSedater(['foo'])
         self.assertFalse(self.cli.args.csv_headers)
         self.assertFalse(self.cli.args.left_calibration)
         self.assertFalse(self.cli.args.right_calibration)
         self.assertFalse(self.cli.args.output_dir)
     def test_toggle_csv_header(self):
-        self.cli.parseForSedater(None)
+        self.cli.parseForSedater(['foo'])
         self.assertFalse(self.cli.args.csv_headers)
         self.cli.parseForSedater(['-c', 'foo'])
         self.assertTrue(self.cli.args.csv_headers)

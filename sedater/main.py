@@ -1,19 +1,20 @@
-# ./sedater/sedater/main.py
+# ./sedater/main.py
 # Author:   Ulli Goschler <ulligoschler@gmail.com>
-# Modified: Thu, 10.12.2015 - 15:48:42
+# Modified: Thu, 10.12.2015 - 19:56:13
 
 import sys, os
+sys.path.insert(0, os.getcwd())
 
-from options import CLIParser
+from sedater.options import CLIParser
 
-from filesystem import Crawler
-from rawvalidation import RawConverter
-from txtvalidation import TxtConverter
-from export import CSVExporter
-from export import XMLExporter
+from sedater.filesystem import Crawler
+from sedater.rawvalidation import RawConverter
+from sedater.txtvalidation import TxtConverter
+from sedater.export import CSVExporter
+from sedater.export import XMLExporter
 
-from lib.shared import UninitializedSensor
-from lib.shared import Orientation
+from sedater.lib.shared import UninitializedSensor
+from sedater.lib.shared import Orientation
 
 if __name__ == "__main__":
     cli = CLIParser()

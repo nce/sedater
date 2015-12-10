@@ -1,6 +1,6 @@
 # ./sedater/plotter/options.py
 # Author:   Ulli Goschler <ulligoschler@gmail.com>
-# Modified: Thu, 10.12.2015 - 16:27:20
+# Modified: Thu, 10.12.2015 - 19:04:41
 
 import argparse
 
@@ -68,7 +68,7 @@ class CLIParser(object):
                 , help='directory where the image files will be placed '
                     '(default: same directory as the input file)')
 
-        self.args = parser.parse_args()
+        self.args = parser.parse_args(arguments)
 
         # allow different graphs to be plotted
         defaultAccel = ['accelX', 'accelY', 'accelZ']

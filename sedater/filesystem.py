@@ -1,13 +1,13 @@
 # ./sedater/lib/filesystem.py
 # Author:   Ulli Goschler <ulligoschler@gmail.com>
-# Modified: Thu, 10.12.2015 - 14:50:08
+# Modified: Thu, 10.12.2015 - 17:15:38
 
 import os
 import re
 from collections import namedtuple
 
-from lib.shared import Sourcefile
-from lib.shared import Orientation
+from sedater.lib.shared import Sourcefile
+from sedater.lib.shared import Orientation
 
 class Crawler(object):
     """

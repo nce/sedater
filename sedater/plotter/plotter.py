@@ -1,6 +1,6 @@
 # ./sedater/plotter/plotter.py
 # Author:   Ulli Goschler <ulligoschler@gmail.com>
-# Modified: Thu, 10.12.2015 - 20:08:46
+# Modified: Thu, 10.12.2015 - 22:16:35
 
 import os, sys
 import numpy as np
@@ -145,6 +145,9 @@ class Plotter(object):
 
         See :class:`this <Plotter._extractOverlayData>` documentation
         for more details on the overlay.
+        If an overlay should be drawn, an offset is calculated for the
+        placment of the overlay arrows on the plot. Usually in the 1st/3
+        of the plot.
 
         :param str identity: Identity of the plot. Can either be ``accel`` 
             or ``gyro``

@@ -1,7 +1,7 @@
 # ./sedater/test/test_exporter.py
 # Author:   Ulli Goschler <ulligoschler@gmail.com>
 # Created:  Sun, 08.11.2015 - 23:09:28 
-# Modified: Thu, 10.12.2015 - 00:40:45
+# Modified: Thu, 10.12.2015 - 19:40:57
 
 import unittest
 import os
@@ -10,7 +10,6 @@ from testfixtures import TempDirectory
 import sys
 
 from sedater.export import CSVExporter
-
 from sedater.export import XMLExporter
 from xml.etree import ElementTree as et
 
@@ -19,7 +18,7 @@ from sedater.lib import shared as lib
 class TestXMLExporter(unittest.TestCase):
     def setUp(self):
         self.tmp = TempDirectory()
-        self.dir = self.tmp.makedir('foobar')
+        self.dir = self.tmp.makedir('foobar/')
         self.exp = XMLExporter(self.dir)
     def tearDown(self):
         TempDirectory.cleanup_all()
@@ -32,14 +31,14 @@ class TestXMLExporter(unittest.TestCase):
     def test_content_of_meta_info_file(self):
         filename = 'barfoo.xml'
         status = self.exp._exportMetaInformationToXML('01', '02', filename)
-        tree = et.parse(self.dir+'metainformation.xml')
+        tree = et.parse(self.dir + 'metainformation.xml')
         xml = tree.getroot()
         session = xml.find('Session')
         exercise = xml.find('Exercise')
         annotation = xml.find('Annotationfile')
         self.assertEquals('01', session.text)
         self.assertEquals('02', exercise.text)
-        self.assertEquals('barfoo.xml', annotation.text)
+        self.assertEquals(self.dir + filename, annotation.text)
     def DISABLEDtest_content_of_xml_export_file(self):
         src = lib.Sourcefile._make(['', '', '', '', lib.Orientation.left])
         input = lib.Validationfile._make([src, 'Gold', [['Foo', 'Bar']], 

@@ -1,14 +1,14 @@
 # ./sedater/rawvalidation.py
 # Author:   Ulli Goschler <ulligoschler@gmail.com>
 # Created:  Wed, 28.10.2015 - 18:58:05 
-# Modified: Thu, 10.12.2015 - 13:45:50
+# Modified: Thu, 10.12.2015 - 17:16:04
 
 import os
 import csv
 import typing
 import struct
 
-from lib import shared
+from sedater.lib import shared
 
 class RawConverter(object):
     """

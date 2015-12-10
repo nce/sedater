@@ -1,15 +1,13 @@
 # ./sedater/export.py
 # Author:   Ulli Goschler <ulligoschler@gmail.com>
 # Created:  Sun, 08.11.2015 - 22:21:45 
-# Modified: Thu, 10.12.2015 - 15:32:43
+# Modified: Thu, 10.12.2015 - 17:11:22
 
 import csv
 import os
 from xml.etree import ElementTree as et
 
-import sys
-
-from lib import shared
+from sedater.lib import shared
 
 class Exporter(object):
     """
