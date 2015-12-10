@@ -1,20 +1,22 @@
-# ./sedater/sedater/lib/filesystem.py
+# ./sedater/lib/filesystem.py
 # Author:   Ulli Goschler <ulligoschler@gmail.com>
-# Created:  Sat, 10.10.2015 - 12:00:05 
-# Modified: Sat, 07.11.2015 - 18:31:53
+# Modified: Thu, 10.12.2015 - 11:38:44
 
 import os
 import re
 from collections import namedtuple
 
-from sedater.lib.shared import Sourcefile
+from lib.shared import Sourcefile
+from lib.shared import Orientation
 
 class Crawler(object):
     """
-    The Crawler operates on a filesystem level and groups session files together.
-    In the crawling process all files under the given path (usually provided 
-    by command line) are examined and disassembled by certain criteria based 
-    on the filename.
+    The Crawler operates on a filesystem level. It locates all processable
+    files  and groups them in individual sessions together.
+
+    In the crawling process all files under the given path (usually
+    provided on command line) are examined and disassembled by certain 
+    criteria based on the filename.
 
     Session Data (required) is usually prefixed by (case sensitive):
         * GAstd
@@ -40,14 +42,18 @@ class Crawler(object):
 
     def crawl(self, source):
         """
-        Crawls all directories under supplied path and stores files 
+        Crawls all directories under the supplied path and stores files 
         matching a certain filename criteria for further processing
+
+        :param str source: Path which should be crawled
+        :return: Indicator if the crawling of the source was successfull
+        :rtype: bool
         """
         sourceIsDir  = True if os.path.isdir(source) else False
         sourceIsFile = True if os.path.isfile(source) else False
         if not sourceIsFile and not sourceIsDir:
-            raise AttributeError("'{}' is neither a file nor a directory,\
-                    attempting to skip'".format(source))
+            raise AttributeError("'{}' is neither a file nor a directory,"
+                    " attempting to skip this input source".format(source))
             return False
 
         if sourceIsFile:
@@ -68,17 +74,22 @@ class Crawler(object):
             raise ValueError("No processable files found in '{}'".format(source))
             return False
 
-    def _crawlDir(self):
-        # TODO: implement
-        pass
-
     def _parseFileName(self, f):
         """
-        Apply a RegEx on a filename to extract foot orientation and session ID
-        (aka patient ID), if an exercise ID is available, match that too.
+        Apply a RegEx on a filename to extract the sensor's orientation and
+        session ID (aka patient ID); if an exercise ID is available,
+        match that too.
+
+        See the source code for available orientation parameters.
+
+        :param str f: Path of the file
+        :raises PermissionError: Indicating that no read access is provided
+        :return: Parsed sourcfile information
+        :rtype: :class:`Sourcefile <lib.shared.Sourcefile>`
         """
         if not os.access(f, os.R_OK):
-            raise PermissionError("No read access granted on '{}', skipping file")
+            raise PermissionError("No read access granted on '{}', "
+                " skipping file")
             return False
 
         attr = [''] * 5                     # create list for file attributes
@@ -97,9 +108,13 @@ class Crawler(object):
         sessionMatch     = session.search(attr[1])
 
         # extract the matches
-        if orientationMatch: 
-            attr[4] = orientationMatch.group(1).lower()
-        if exerciseMatch: 
+        if orientationMatch:
+            m = orientationMatch.group(1).lower()
+            if m == 'left':
+                attr[4] = Orientation.left
+            elif m == 'right':
+                attr[4] = Orientation.right
+        if exerciseMatch:
             attr[3] = exerciseMatch.group(1)
         if sessionMatch:
             for i in range(1, len(sessionMatch.groups()) + 1):
@@ -110,16 +125,22 @@ class Crawler(object):
 
     def pair(self):
         """
-        Pair two files together based on filename
+        Pair files together based on the filename.
 
-        Each Session (Patient) has usually two sensors (left & right foot). 
-        Based on the filename they are paired together.
+        *This should only happen after the ``crawl()`` function found 
+        and indexed files*
+
+        Each Session (Patient) has usually more sensors (e.g. left &
+        right foot).
+
+        :raises ValueError: Pairing of mentioned files failed
+        :return: Indicator of successful paring
+        :rtype: bool
         """
         if not self.existingFiles:
-            raise ValueError("Can't attempt pairing if no datasets are available.\
-            Either the Inputsource didn't provide any matching files or the \
-            detection process failed")
-            return False
+            raise ValueError("Can't attempt pairing if no datasets are "
+                    "available. Either the Inputsource didn't provide "
+                    "any matching files or the detection process failed")
 
         # delete all datasets without session and orientation data
         # TODO: log deleted files
@@ -128,7 +149,7 @@ class Crawler(object):
 
         for single in self.existingFiles[:]:
             # always find a matching 'right' sensor
-            if not single.orientation == 'left': continue
+            if not single.orientation.name == 'left': continue
             # match same session, exercise and file extension
             match = [x for x in self.existingFiles 
                     if single.session == x.session
@@ -144,8 +165,9 @@ class Crawler(object):
         if self.existingFiles:
             for i in self.existingFiles:
                 self.pairedFiles.append((i, i))
-                raise ValueError("Found file without a matching partner '{}/{}',\
-                        pairing with itself to continue.".format(i.path, i.filename))
+                raise ValueError("Found file without a matching partner "
+                        "'{}/{}', pairing with itself to continue."
+                        .format(i.path, i.filename))
 
         return True
 
