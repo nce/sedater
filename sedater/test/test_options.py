@@ -1,52 +1,50 @@
 # ./sedater/test/test_options.py
 # Author:   Ulli Goschler <ulligoschler@gmail.com>
 # Created:  Mon, 05.10.2015 - 12:59:56 
-# Modified: Fri, 06.11.2015 - 17:53:25
+# Modified: Thu, 10.12.2015 - 19:16:47
 
 import unittest
-import logging as log
 
-from sedater import options
+from sedater.options import CLIParser
 
 class TestCommandLineParameters(unittest.TestCase):
     def setUp(self):
-        self.cli = options.CLIParser()
+        self.cli = CLIParser()
 
     def test_default_settings(self):
         self.cli.parseForSedater(None)
-        self.assertEquals(self.cli.hasVerbose, False)
-        self.assertEquals(self.cli.hasDebug, False)
-        self.assertEquals(self.cli.outputDirPrefix, './')
-    def test_verbose_mode_on(self):
-        self.cli.parseForSedater(['-v'])
-        self.assertEquals(self.cli.hasVerbose, True)
-        self.cli.parseForSedater(['--verbose'])
-        self.assertEquals(self.cli.hasVerbose, True)
-
-        self.assertEquals(self.cli.log.getEffectiveLevel(), log.INFO)
-    def test_debug_mode_on(self):
-        self.cli.parseForSedater(['-d'])
-        self.assertEquals(self.cli.hasDebug, True)
-        self.cli.parseForSedater(['--debug'])
-        self.assertEquals(self.cli.hasDebug, True)
-
-        self.assertEquals(self.cli.log.getEffectiveLevel(), log.DEBUG)
-    def test_headers_on(self):
-        self.cli.parseForSedater(['-t'])
-        self.assertEquals(self.cli.hasCsvHeader, True)
-        self.cli.parseForSedater(['--csv-header'])
-        self.assertEquals(self.cli.hasCsvHeader, True)
-    def test_output_dir_setting(self):
-        self.cli.parseForSedater(['-o /foo'])
-        self.assertEquals(self.cli.outputDirPrefix, '/foo/')
-        self.cli.parseForSedater(['--output-dir=/bar/'])
-        self.assertEquals(self.cli.outputDirPrefix, '/bar//')
-        self.cli.parseForSedater(['-o foo'])
-        self.assertEquals(self.cli.outputDirPrefix, './foo/')
-    def test_logging_setup(self):
-        self.cli.parseForSedater(['-v'])
-        self.assertEquals(self.cli.log.getEffectiveLevel(), log.INFO)
-        self.cli.parseForSedater(['-d'])
-        self.assertEquals(self.cli.log.getEffectiveLevel(), log.DEBUG)
+        self.assertFalse(self.cli.args.csv_headers)
+        self.assertFalse(self.cli.args.left_calibration)
+        self.assertFalse(self.cli.args.right_calibration)
+        self.assertFalse(self.cli.args.output_dir)
+    def test_toggle_csv_header(self):
+        self.cli.parseForSedater(None)
+        self.assertFalse(self.cli.args.csv_headers)
+        self.cli.parseForSedater(['-c', 'foo'])
+        self.assertTrue(self.cli.args.csv_headers)
+        self.cli.parseForSedater(['--csv-headers', 'foo'])
+        self.assertTrue(self.cli.args.csv_headers)
+    def test_left_calibration_file(self):
+        ref = res = 'foobar'
+        self.cli.parseForSedater(['-l', ref, 'barfoo'])
+        self.assertEquals(self.cli.args.left_calibration, res)
+        self.cli.parseForSedater(['--left-calibration', ref, 'barfoo'])
+        self.assertEquals(self.cli.args.left_calibration, res)
+    def test_right_calibration_file(self):
+        ref = res = 'foobar'
+        self.cli.parseForSedater(['-r', ref, 'barfoo'])
+        self.assertEquals(self.cli.args.right_calibration, res)
+        self.cli.parseForSedater(['--right-calibration', ref, 'barfoo'])
+        self.assertEquals(self.cli.args.right_calibration, res)
+    def test_output_dir(self):
+        ref = res = 'foobar'
+        self.cli.parseForSedater(['-o', ref, 'barfoo'])
+        self.assertEquals(self.cli.args.output_dir, res)
+        self.cli.parseForSedater(['--output-dir', ref, 'barfoo'])
+        self.assertEquals(self.cli.args.output_dir, res)
+    def test_input_source_arguments(self):
+        ref = res = ['foo', 'bar', 'foobar', 'barfoo']
+        self.cli.parseForSedater(ref)
+        self.assertEquals(self.cli.args.inputSource, ref)
 
 
