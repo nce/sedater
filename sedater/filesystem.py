@@ -1,6 +1,6 @@
 # ./sedater/lib/filesystem.py
 # Author:   Ulli Goschler <ulligoschler@gmail.com>
-# Modified: Thu, 10.12.2015 - 11:38:44
+# Modified: Thu, 10.12.2015 - 14:50:08
 
 import os
 import re

@@ -37,11 +37,20 @@ according to the following pattern:
 ## Usage Examples
 
 # Install
-Just clone the repository and install the dependencies:
+Cloning the repository should be enough
+## Requirements
+The tool has the following python [requirements](requirements.txt) 
+which are easily resolved by executing:
 ```
 pip install -r requirements.txt
 ```
+The heaviest dependencies are `matplotlib` and `numpy` which are 
+exclusivly used for the optional [plotting](#Plotting) of the 
+Rawvalidation files. The main functionality is given without them.
 
+If you choose to not rely on plotting simply don't install them by 
+commenting them out in the [dependency file](requirements.txt) 
+(prefix with: `#`).
 ## Easy Install
 
 ## Python Version

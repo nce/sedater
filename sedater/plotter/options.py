@@ -1,19 +1,28 @@
 # ./sedater/plotter/options.py
 # Author:   Ulli Goschler <ulligoschler@gmail.com>
-# Modified: Thu, 10.12.2015 - 00:11:55
-
-import sys, os
-import getopt, logging
+# Modified: Thu, 10.12.2015 - 16:27:20
 
 import argparse
+
 class CLIParser(object):
+    """
+    Parses the commandline arguments.
+
+    Refer to the source code for available commandline options, or 
+    run ``plotter -h``.
+    """
 
     def parseForPlotter(self, arguments):
+        """
+        :param list arguments: List of commandline arguments
+        :return: Indicator of successful cli parsing
+        :rtype: bool
+        """
         parser = argparse.ArgumentParser(
                 description="The plotting utility of the sedater package"
                 "\n"
                 "\nDocumentation available at:  "
-                "http://sedater.readthedocs.org/en/latest/index.html"
+                "http://sedater.readthedocs.org"
                 "\nLatest Version available at: "
                 "https://github.com/nce/sedater"
                 "\n"
@@ -82,50 +91,3 @@ class CLIParser(object):
             self.args.graph = [defaultAccel, defaultGyro]
 
         return True
-
-class CLIParserDep(object):
-    def __init__(self):
-        annotationFile = ''
-        isXML = False
-        outputDirPrefix = ''
-
-    def parseForPlotter(self, arguments):
-        _availableOpts = ['xo:',
-                    [
-                        'xml'
-                      , 'output-dir='
-                    ]
-                ]
-        opts = self._initParse(arguments, _availableOpts)
-
-        if not opts:
-            self._plotterUsage()
-            return False
-
-        for opt, arg in opts:
-            if opt in ('-h', '--help'):
-                self._plotterUsage()
-                return False
-            elif opt in ('-x', '--xml'):
-                self.isXML = True
-            elif opt in ('-o', '--output-dir'):
-                dir = arg.lstrip().rstrip()
-                if os.path.isabs(dir):
-                    self.outputDirPrefix = dir + '/'
-                else:
-                    self.outputDirPrefix += dir + '/'
-
-
-
-    def _plotterUsage(self):
-        #TODO: implement help func
-        pass
-
-    def _initParse(self, arguments, optsAvail):
-        try:
-            opts, args = getopt.getopt(arguments, optsAvail[0], optsAvail[1])
-        except getopt.GetoptError as error:
-            print(error)
-            return False
-
-        return opts

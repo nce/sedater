@@ -1,68 +1,52 @@
-# ./sedater/sedater/lib/options.py
+# ./sedater/lib/options.py
 # Author:   Ulli Goschler <ulligoschler@gmail.com>
-# Created:  Fri, 02.10.2015 - 15:57:02 
-# Modified: Fri, 06.11.2015 - 17:54:21
+# Modified: Thu, 10.12.2015 - 14:07:53
 
-import sys, os
-import getopt, logging
+import argparse
 
 class CLIParser(object):
-    def __init__(self):
-        pass
+    """
+    Parses the commandline arguments.
+
+    Refer to the source code for available commandline options.
+    """
 
     def parseForSedater(self, arguments):
-        _availableOpts = ['tl:r:o:dvh', ['csv-header',
-                'left-calibration=', 'right-calibration=', 'output-dir=',
-                'debug', 'verbose', 'help']]
-        opts = self._initParse(arguments, _availableOpts)
-        self.hasVerbose = False
-        self.hasDebug   = False
-        self.hasCsvHeader = False
-        self.outputDirPrefix = './'
+        """
+        :param list arguments: List of commandline arguments
+        :return: Indicator of the successfull cli parsing
+        :rtype: bool
+        """
+        parser = argparse.ArgumentParser(
+                description='A Sensor-Validation Converter Tool'
+                "\n"
+                "\nDocumentation available at:  "
+                "http://sedater.readthedocs.org"
+                "\nLatest Version available at: "
+                "https://github.com/nce/sedater"
+                "\n"
+                "\nThis tool converts Sensor-Validation data to a more machine"
+                " processable format."
+                , formatter_class=argparse.RawTextHelpFormatter)
+        parser.add_argument('-c', '--csv-headers'
+                , action='store_true'
+                , help='Toggle if the exported RawValidation files should '
+                    'should contain a header line (default: False)')
+        parser.add_argument('-l', '--left-calibration'
+                , help='Path to the calibration file for the left sensor.'
+                    ' The file is necessary for a normalization of the sensors'
+                    ' RawValidation data')
+        parser.add_argument('-r', '--right-calibration'
+                , help='Path to the calibration file for the right sensor'
+                    ' The file is necessary for a normalization of the sensors'
+                    ' RawValidation data')
+        parser.add_argument('-o', '--output-dir'
+                , help='Directory where the exported data will be stored')
+        parser.add_argument('inputSource'
+                , nargs='+'
+                , help='Directory or file which should be crawled for'
+                    ' Validationfiles')
 
-        if not opts:
-            self._sedaterUsage()
-            return False
+        self.args = parser.parse_args()
 
-        for opt, arg in opts:
-            if opt in ('-h', '--help'):
-                self._sedaterUsage()
-                return False
-            elif opt in ('-v', '--verbose'):
-                self.hasVerbose = True
-            elif opt in ('-d', '--debug'):
-                self.hasDebug = True
-            elif opt in ('-t', '--csv-header'):
-                self.hasCsvHeader = True
-            elif opt in ('-o', '--output-dir'):
-                dir = arg.lstrip().rstrip()
-                if os.path.isabs(dir):
-                    self.outputDirPrefix = dir + '/'
-                else:
-                    self.outputDirPrefix += dir + '/'
-
-
-        self._initLogging()
-
-    def _sedaterUsage(self):
-# implement help func
-        pass
-
-    def _initLogging(self):
-        logging.basicConfig(stream=sys.stdout, format="%(levelname)s: %(message)s")
-        self.log = logging.getLogger()
-        if self.hasDebug:
-            self.log.setLevel(logging.DEBUG)
-            self.log.debug("Debug logging enabled")
-        elif self.hasVerbose:
-            self.log.setLevel(logging.INFO)
-            self.log.info("Verbose logging enabled")
-
-    def _initParse(self, arguments, optsAvail):
-        try:
-            opts, args = getopt.getopt(arguments, optsAvail[0], optsAvail[1])
-        except getopt.GetoptError as error:
-            print(error)
-            return False
-
-        return opts
+        return True

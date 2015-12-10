@@ -1,24 +1,32 @@
 # ./sedater/txtvalidation.py
 # Author:   Ulli Goschler <ulligoschler@gmail.com>
 # Created:  Tue, 10.11.2015 - 12:22:28 
-# Modified: Tue, 08.12.2015 - 22:06:27
+# Modified: Thu, 10.12.2015 - 15:01:58
 
-import csv
-import re
+import csv, re, os
 
-from sedater.lib import shared as lib
+from lib import shared as lib
 
 class TxtConverter(object):
     """
+    Imports and processes TextValidation files.
+
+    The processed TextValidation files are stored in:
+    :class:`self.validationData` as 
+    ``list(``:class:`Validationfile <lib.shared.Validationfile>` ``)``
+
+    :param filesToConvert: Files which might contain valid Validationinformation
+    :type filesToConvert: list(:class:`Sourcefile <lib.shared.Sourcefile>`)
     """
     def __init__(self, filesToConvert):
         self.filesToConvert = filesToConvert
+        self.validationData = []
     def processTxtFiles(self):
         for txtPair in self.filesToConvert:
             for i in range(len(txtPair)):
                 # skip all non '.txt' files
-                if '.txt' != os.path.splitext(rawPair[i].filename)[1]: continue
-                self.parseTxtFile(rawPair[i])
+                if '.txt' != os.path.splitext(txtPair[i].filename)[1]: continue
+                self.validationData.append(self.parseTxtFile(txtPair[i]))
 
     def parseTxtFile(self, sourcefile):
         """
@@ -46,13 +54,13 @@ class TxtConverter(object):
             csv syntax. So we don't solely rely on the csv reading capabilites.*
 
         :param sourcefile: path to the validation-text file
-        :type sourcefile: :class:`Sourcefile <sedater.lib.shared.Sourcefile>`
+        :type sourcefile: :class:`Sourcefile <lib.shared.Sourcefile>`
         :return: the meta information and validation-data
-        :rtype: :class:`Validationfile <sedater.lib.shared.Validationfile>`
+        :rtype: :class:`Validationfile <lib.shared.Validationfile>`
         """
         validationType = ''
 
-        with open(sourcefile.path, 'r') as csvfile:
+        with open(sourcefile.path + '/' + sourcefile.filename, 'r') as csvfile:
             reader = csv.reader(csvfile)
             i          = 0
             s          = 0
@@ -83,4 +91,9 @@ class TxtConverter(object):
             for row in d:
                 content.append(row)
 
-        return lib.Validationfile._make([sourcefile, validationType, attributes, content])
+        return lib.Validationfile._make([
+              sourcefile
+            , validationType
+            , attributes
+            , content
+            ])

@@ -1,7 +1,7 @@
 # ./sedater/rawvalidation.py
 # Author:   Ulli Goschler <ulligoschler@gmail.com>
 # Created:  Wed, 28.10.2015 - 18:58:05 
-# Modified: Thu, 10.12.2015 - 12:30:04
+# Modified: Thu, 10.12.2015 - 13:45:50
 
 import os
 import csv
@@ -30,6 +30,8 @@ class RawConverter(object):
         self.availableSensors = sensors
         # initialized sensors
         self.initSensors      = {}
+        self.sessionIdentifier = ''
+        self.exerciseIdentifier = ''
 
         # if not self.leftSensorCalibrationFile or \
         #       not self.rightSensorCalibrationFile:
@@ -74,6 +76,12 @@ class RawConverter(object):
                 self.initSensors[rawPair[i].orientation.name]\
                         .parseAndNormalizeRawFile(
                             rawPair[i].path + "/" + rawPair[i].filename)
+
+                # store identifiers in object for later export access
+                if not self.sessionIdentifier:
+                    self.sessionIdentifier = rawPair[i].session
+                if not self.exerciseIdentifier:
+                    self.exerciseIdentifier = rawPair[i].exercise
 
 
 class Sensor(object):

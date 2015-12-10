@@ -1,7 +1,7 @@
 # ./sedater/export.py
 # Author:   Ulli Goschler <ulligoschler@gmail.com>
 # Created:  Sun, 08.11.2015 - 22:21:45 
-# Modified: Tue, 08.12.2015 - 22:41:41
+# Modified: Thu, 10.12.2015 - 15:32:43
 
 import csv
 import os
@@ -9,7 +9,7 @@ from xml.etree import ElementTree as et
 
 import sys
 
-from sedater.lib import shared
+from lib import shared
 
 class Exporter(object):
     """
@@ -21,6 +21,29 @@ class Exporter(object):
 
     def __init__(self):
         pass
+
+    def prepareOutputDir(self, dirPrefix, session, exercise=False):
+        """
+        Creates all necessary directories for the exporting process.
+
+        Each individual ``session`` gets an own directory under the ``ouputDir``
+        provided by command line.
+
+        :param str dirPrefix: Path under which all directories will be created
+        :param str session: Session identifier
+        :param str exercise: (optional) Exercise identifier
+        :return: Path to existing directory
+        :rtype: str
+        """
+        ePrefix = "_E"+exercise if exercise else ''
+        sPrefix = "session"+session
+
+        output = dirPrefix + '/' + sPrefix + ePrefix + '/'
+
+        if not os.path.exists(output):
+            os.makedirs(output)
+
+        return output
 
 # # TODO: move to validation; this should not be the in an exporter
 #     def getOrientation(self, validationProperties):
@@ -49,25 +72,25 @@ class Exporter(object):
 #                     " mishandle the export".format("Unknown"))
 
 class XMLExporter(Exporter):
+    """
+    Exports TextValidation files to a single file in XML notation
+
+    :param str exportLocation: Path to the export directory
+    """
+
     def __init__(self, exportLocation):
-        """
-        Exports the given validation to a specific file in XML notation
-
-        :param str exportLocation: Path to the export directory
-        """
-
         self.exportLocation = exportLocation
         self.annotationFile = 'annotation.xml'
+
     def export(self, validation):
         """
         :param validation: The parsed 
-            :class:`Textfile <sedater.txtvalidation.TxtConverter.parseTxtFile>`
-        :param type validation: 
-            :class:`Validationfile <sedater.lib.shared.Validationfile>`
+            :class:`Textfile <txtvalidation.TxtConverter.parseTxtFile>`
+        :type validation:
+            :class:`Validationfile <lib.shared.Validationfile>`
         """
 
         filename = 'annotation.xml'
-        # extract parameters from txtvalidation
 
         self._exportMetaInformationToXML(validation.sourcefile.session, 
                 validation.sourcefile.exercise, filename)
@@ -77,9 +100,8 @@ class XMLExporter(Exporter):
             document = et.ElementTree()
             document.parse(self.exportLocation + filename)
 
-            overwrite = document.find('.//Sensor [@Orientation="'+
-                    validation.sourcefile.orientation.name +'"]/..\
-                    [@Type="'+validation.type+'"]')
+            overwrite = document.find('.//Sensor[@Orientation="'+
+                    validation.sourcefile.orientation.name.lower() +'"]/..[@Type="'+validation.type+'"]')
             if overwrite:
                 document.getroot().remove(overwrite)
         else:
@@ -141,7 +163,7 @@ class XMLExporter(Exporter):
         exerciseXML.text = exercise
 
         annotationXML = et.SubElement(documentXML, 'Annotationfile')
-        annotationXML.text = annotationFile
+        annotationXML.text = self.exportLocation + annotationFile
 
         exportXML = et.ElementTree(documentXML)
         shared.indentXML(documentXML)
@@ -151,15 +173,23 @@ class XMLExporter(Exporter):
 
 
 class CSVExporter(Exporter):
+    """
+    This Exporter handles the export of the RawValidation files to CSV files.
 
-    def export(self, segments, exportLocation, withHeader=False, withIndices=True):
+    After the :class:`Sensorsegments <lib.shared.Sensorsegment>` are
+    normalized they can be exported back to the filesystem as CSV files.
+    """
+
+    def export(self, segments, exportLocation
+            , withHeader=False
+            , withIndices=True):
         """
         Exports the given segments to a specific file in CSV notation
 
         :param segments: A list (array) of segments which should be exported to
                 the same file
         :type segments: list of 
-                :class:`Sensorsegment <sedater.lib.shared.Sensorsegment>`
+                :class:`Sensorsegment <lib.shared.Sensorsegment>`
         :param str exportLocation: export path location (incl. filename)
         :param Boolean withHeader: Print a header line in the csv file, 
                 indicating the row attributes
@@ -170,7 +200,11 @@ class CSVExporter(Exporter):
 
         try:
             with open(exportLocation, 'w') as exportFile:
-                # TODO: with headers, with indices
+                # TODO: indices are currently always placed in the first 
+                # column,
+                # as they are needed for the plotting. But this might not
+                # be wanted by the user. So maybe deactivate them by
+                # commandline switch
                 exp = csv.writer(exportFile)
                 if withHeader:
                     if withIndices:
@@ -184,15 +218,30 @@ class CSVExporter(Exporter):
                         exp.writerow(header)
                 if withIndices:
                     # column with indices
-                    exp.writerows([(index+1, value.accelX, value.accelY, value.accelZ,
-                        value.gyroX, value.gyroY, value.gyroZ) for index,value in enumerate(segments)])
+                    exp.writerows([(
+                        index+1
+                        , value.accelX
+                        , value.accelY
+                        , value.accelZ
+                        , value.gyroX
+                        , value.gyroY
+                        , value.gyroZ
+                        ) for index,value in enumerate(segments)])
                 else:
                     # column without indices
-                    exp.writerows([(value.accelX, value.accelY, value.accelZ,
-                        value.gyroX, value.gyroY, value.gyroZ) for value in segments])
+                    exp.writerows([(
+                        value.accelX
+                        , value.accelY
+                        , value.accelZ
+                        , value.gyroX
+                        , value.gyroY
+                        , value.gyroZ
+                        ) for value in segments])
 
         except Exception as e:
-            # TODO: handle common exceptions
+            # TODO: handle common exceptions;
+            # but not sure what could happen here besides filesystem 
+            # failures
             raise e
 
         return True
