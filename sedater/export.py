@@ -1,7 +1,7 @@
 # ./sedater/export.py
 # Author:   Ulli Goschler <ulligoschler@gmail.com>
 # Created:  Sun, 08.11.2015 - 22:21:45 
-# Modified: Thu, 10.12.2015 - 17:11:22
+# Modified: Fri, 11.12.2015 - 01:14:26
 
 import csv
 import os
@@ -43,32 +43,6 @@ class Exporter(object):
 
         return output
 
-# # TODO: move to validation; this should not be the in an exporter
-#     def getOrientation(self, validationProperties):
-#         orientationIndex = validationProperties.index('Orientation')
-#         # get the next element in list
-#         orientation = validationProperties[orientationIndex + 1]
-#         # check if orientation is a sring, and is a valid 'Orientation'
-#         if isinstance(orientation, str) and \
-#                 orientation in [e.name for e in shared.Orientation]:
-#             return orientation
-#         else:
-#             # TODO: get current file
-#             raise AttributeError("The ValidationTxtFile '{}' does not contain"
-#                     " a valid Orientation. This is not recoverable, as we"
-#                     " don't know where to store the export".format("Unknown"))
-
-#     def getValidationType(self, validationProperties):
-#         validationIndex = validationProperties.index('Validation')
-#         # get element 'right of' Validation
-#         validation = validationProperties[validationIndex + 1]
-#         if isinstance(validation, str):
-#             return validation
-#         else:
-#             raise AttributeError("The ValidationTxtFile '{}' does not contain"
-#                     " a valid ValidationType. This is recoverable, but might"
-#                     " mishandle the export".format("Unknown"))
-
 class XMLExporter(Exporter):
     """
     Exports TextValidation files to a single file in XML notation
@@ -92,11 +66,13 @@ class XMLExporter(Exporter):
 
         self._exportMetaInformationToXML(validation.sourcefile.session, 
                 validation.sourcefile.exercise, filename)
+        output = self._getExportLocation(validation.sourcefile.session,
+                validation.sourcefile.exercise)
 
         # check if file already exists (from a previous run or the other sensors)
-        if os.path.isfile(self.exportLocation + filename):
+        if os.path.isfile(output + filename):
             document = et.ElementTree()
-            document.parse(self.exportLocation + filename)
+            document.parse(output + filename)
 
             overwrite = document.find('.//Sensor[@Orientation="'+
                     validation.sourcefile.orientation.name.lower() +'"]/..[@Type="'+validation.type+'"]')
@@ -133,11 +109,26 @@ class XMLExporter(Exporter):
 
         export = et.ElementTree(document)
         shared.indentXML(document)
-        export.write(self.exportLocation + filename, encoding='utf-8',
+        export.write(output + filename, encoding='utf-8',
                 xml_declaration=True)
         return True
 
 
+    def _getExportLocation(self, session, exercise):
+        """
+        Returns a dynamic export location.
+
+        :param str session: Session
+        :param str exercise: Exercise
+        :return: Current export location
+        :rtype: str
+        """
+        ePrefix = "_E"+exercise if exercise else ''
+        sPrefix = "session"+session
+
+        output = self.exportLocation + '/' + sPrefix + ePrefix + '/'
+
+        return output
 
     def _exportMetaInformationToXML(self, session, exercise, annotationFile):
         """
@@ -150,6 +141,7 @@ class XMLExporter(Exporter):
         :param str annotationFile: Full path to the annotation file
         """
         filename = 'metainformation.xml'
+        output = self._getExportLocation(session, exercise)
 
         # Build XML structure
         documentXML = et.Element('Meta')
@@ -161,11 +153,11 @@ class XMLExporter(Exporter):
         exerciseXML.text = exercise
 
         annotationXML = et.SubElement(documentXML, 'Annotationfile')
-        annotationXML.text = self.exportLocation + annotationFile
+        annotationXML.text = output + annotationFile
 
         exportXML = et.ElementTree(documentXML)
         shared.indentXML(documentXML)
-        exportXML.write(self.exportLocation + filename, encoding='utf-8', 
+        exportXML.write(output + filename, encoding='utf-8', 
                 xml_declaration=True)
         return True
 

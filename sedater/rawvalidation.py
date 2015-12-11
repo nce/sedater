@@ -1,7 +1,7 @@
 # ./sedater/rawvalidation.py
 # Author:   Ulli Goschler <ulligoschler@gmail.com>
 # Created:  Wed, 28.10.2015 - 18:58:05 
-# Modified: Thu, 10.12.2015 - 17:16:04
+# Modified: Fri, 11.12.2015 - 00:07:08
 
 import os
 import csv
@@ -78,10 +78,8 @@ class RawConverter(object):
                             rawPair[i].path + "/" + rawPair[i].filename)
 
                 # store identifiers in object for later export access
-                if not self.sessionIdentifier:
-                    self.sessionIdentifier = rawPair[i].session
-                if not self.exerciseIdentifier:
-                    self.exerciseIdentifier = rawPair[i].exercise
+                self.sessionIdentifier = rawPair[i].session
+                self.exerciseIdentifier = rawPair[i].exercise
 
 
 class Sensor(object):

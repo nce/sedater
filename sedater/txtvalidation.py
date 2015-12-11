@@ -1,7 +1,7 @@
 # ./sedater/txtvalidation.py
 # Author:   Ulli Goschler <ulligoschler@gmail.com>
 # Created:  Tue, 10.11.2015 - 12:22:28 
-# Modified: Thu, 10.12.2015 - 17:16:13
+# Modified: Fri, 11.12.2015 - 00:53:08
 
 import csv, re, os
 
@@ -27,6 +27,8 @@ class TxtConverter(object):
                 # skip all non '.txt' files
                 if '.txt' != os.path.splitext(txtPair[i].filename)[1]: continue
                 self.validationData.append(self.parseTxtFile(txtPair[i]))
+                self.sessionIdentifier = txtPair[i].session
+                self.exerciseIdentifier = txtPair[i].exercise
 
     def parseTxtFile(self, sourcefile):
         """

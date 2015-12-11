@@ -148,7 +148,10 @@ and after plotting:
     tmp/exp/session2_E4/rightSensorNormalized.csv
 ```
 the following image is created:
-![gyroY Plot](docs/images/gyro-rightSensorNormalized.png)
+
+![gyroY Plot](docs/images/gyro-rightSensorNormalized004.png)
+
+Further examples are [here](USAGE_SAMPLES.md).
 
 # Developer Documentation
 The code is annotated by [docstrings](https://en.wikipedia.org/wiki/Docstring),

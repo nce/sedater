@@ -1,6 +1,6 @@
 # ./sedater/plotter/plotter.py
 # Author:   Ulli Goschler <ulligoschler@gmail.com>
-# Modified: Thu, 10.12.2015 - 22:16:35
+# Modified: Fri, 11.12.2015 - 02:01:01
 
 import os, sys
 import numpy as np
@@ -184,10 +184,10 @@ class Plotter(object):
                 , src[accel]
                 , color=self.colors[i]
                 , label=accel)
-            maxima.append(max(src[accel]))
         if overlay:
             # place overlay arrows at 1/3 of y-max
-            yOverlay = 0.3 * max(maxima)
+            # yOverlay = 0.3 * max(maxima)
+            yOverlay = 3 if identity == 'accel' else 200
             legend = []
             for gs in overlay:
                 ax.annotate(''

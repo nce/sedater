@@ -1,8 +1,8 @@
 # ./sedater/lib/filesystem.py
 # Author:   Ulli Goschler <ulligoschler@gmail.com>
-# Modified: Thu, 10.12.2015 - 17:15:38
+# Modified: Thu, 10.12.2015 - 23:16:02
 
-import os
+import os, sys
 import re
 from collections import namedtuple
 
@@ -88,9 +88,11 @@ class Crawler(object):
         :rtype: :class:`Sourcefile <lib.shared.Sourcefile>`
         """
         if not os.access(f, os.R_OK):
-            raise PermissionError("No read access granted on '{}', "
-                " skipping file")
-            return False
+            try:
+                raise PermissionError("No read access granted on '{}', "
+                    " skipping file")
+            except Exception:
+                return False
 
         attr = [''] * 5                     # create list for file attributes
         attr[0], attr[1] = os.path.split(f) # 0: fullpath 1:filename
@@ -165,9 +167,9 @@ class Crawler(object):
         if self.existingFiles:
             for i in self.existingFiles:
                 self.pairedFiles.append((i, i))
-                raise ValueError("Found file without a matching partner "
+                print("Found file without a matching partner "
                         "'{}/{}', pairing with itself to continue."
-                        .format(i.path, i.filename))
+                        .format(i.path, i.filename), file=sys.stderr)
 
         return True
 
