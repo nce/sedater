@@ -1,6 +1,6 @@
 # ./sedater/main.py
 # Author:   Ulli Goschler <ulligoschler@gmail.com>
-# Modified: Thu, 10.12.2015 - 19:56:13
+# Modified: Fri, 11.12.2015 - 01:23:01
 
 import sys, os
 sys.path.insert(0, os.getcwd())
@@ -25,24 +25,32 @@ if __name__ == "__main__":
     for source in cli.args.inputSource:
         # Data Export preparations
         if cli.args.output_dir:
-            outputDir = cli.args.output_dir
+            outputDir = cli.args.output_dir + '/'
         else:
-            outputDir = os.path.dirname(source)
+            outputDir = os.path.dirname(source) + '/'
 
         # Data Import
         importer.crawl(source)
-        importer.pair()
 
-        # Raw Data Conversion and Normalization
-        sensLeft = UninitializedSensor._make([
-                  Orientation.left
-                , cli.args.left_calibration
-                ])
-        sensRight = UninitializedSensor._make([
-                  Orientation.right
-                , cli.args.right_calibration
-                ])
-        raw = RawConverter(importer.pairedFiles, [sensLeft, sensRight])
+    # All input sources are crawled
+    # now pair all files together
+    importer.pair()
+
+    # Raw Data Conversion and Normalization
+    sensLeft = UninitializedSensor._make([
+              Orientation.left
+            , cli.args.left_calibration
+            ])
+    sensRight = UninitializedSensor._make([
+              Orientation.right
+            , cli.args.right_calibration
+            ])
+    for pair in importer.pairedFiles:
+        # skip all non .dat files
+        # TODO: this is ugly.
+        # cleanup
+        if '.dat' != os.path.splitext(pair[0].filename)[1]: continue
+        raw = RawConverter([pair], [sensLeft, sensRight])
         raw.processDatFiles()
         leftRawValidationSegments = raw.initSensors[Orientation.left.name]\
                 .normalizedSensorSegments
@@ -51,9 +59,6 @@ if __name__ == "__main__":
         currentSession = raw.sessionIdentifier
         currentExercise = raw.exerciseIdentifier
 
-        # Text Data Conversion
-        txt = TxtConverter(importer.pairedFiles)
-        txt.processTxtFiles()
 
         # Raw Data Export
         rawValidation = CSVExporter()
@@ -70,8 +75,12 @@ if __name__ == "__main__":
                 , location + 'rightSensorNormalized.csv'
                 , cli.args.csv_headers)
 
-        # Txt Data Export
-        txtValidation = XMLExporter(location)
-        for validationFile in txt.validationData:
-            txtValidation.export(validationFile)
+    # Text Data Conversion
+    txt = TxtConverter(importer.pairedFiles)
+    txt.processTxtFiles()
+
+    # Txt Data Export
+    txtValidation = XMLExporter(outputDir)
+    for validationFile in txt.validationData:
+        txtValidation.export(validationFile)
 
