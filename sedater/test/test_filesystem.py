@@ -1,7 +1,7 @@
 # ./sedater/test/test_filesystem.py
 # Author:   Ulli Goschler <ulligoschler@gmail.com>
 # Created:  Sun, 11.10.2015 - 20:21:18 
-# Modified: Thu, 10.12.2015 - 19:20:34
+# Modified: Fri, 11.12.2015 - 02:23:14
 
 import unittest
 from testfixtures import TempDirectory
@@ -34,11 +34,13 @@ class TestFilesystemCrawler(unittest.TestCase):
         self.assertEquals(ref[3], res[3])
         self.assertEquals(ref[4], res[4])
 
-    def test_input_type(self):
+    #silent skip of all non readable dirs
+    def DISABLEDtest_input_type(self):
         crawler = Crawler()
         self.assertRaises(AttributeError, crawler.crawl, '404')
 
-    def test_input_file_permissions(self):
+    #silent skip of all non readable dirs
+    def DISABLEtest_input_file_permissions(self):
         os.chmod(self.file, 0)
         crawler = Crawler()
         self.assertRaises(PermissionError, crawler._parseFileName, self.file)

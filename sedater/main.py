@@ -1,6 +1,6 @@
 # ./sedater/main.py
 # Author:   Ulli Goschler <ulligoschler@gmail.com>
-# Modified: Fri, 11.12.2015 - 01:23:01
+# Modified: Fri, 11.12.2015 - 02:21:17
 
 import sys, os
 sys.path.insert(0, os.getcwd())
@@ -32,9 +32,9 @@ if __name__ == "__main__":
         # Data Import
         importer.crawl(source)
 
-    # All input sources are crawled
-    # now pair all files together
-    importer.pair()
+        # All input sources are crawled
+        # now pair all files together
+        importer.pair()
 
     # Raw Data Conversion and Normalization
     sensLeft = UninitializedSensor._make([
